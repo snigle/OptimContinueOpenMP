@@ -8,6 +8,7 @@
 #ifndef ESSAIM_H_
 #define ESSAIM_H_
 #include "Algorithme.h"
+#include "Fcarre.h"
 #include <vector>
 class Essaim:public Algorithme {
 private:
@@ -28,6 +29,7 @@ public:
 	Essaim(Objectif obj, double c1, double c2, unsigned nbParticules, unsigned cArret);
 	virtual ~Essaim();
 	int solve()const;
+	bool majVoisins(unsigned i)const;
 };
 
 #endif /* ESSAIM_H_ */
