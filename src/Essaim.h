@@ -12,7 +12,7 @@
 #include <vector>
 #include <iostream>
 #include <random>
-class Essaim {//: public Algorithme {
+class Essaim{// : public Algorithme<F_carre> {
 private:
 
 	F_carre obj;

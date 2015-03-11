@@ -7,7 +7,6 @@
 
 #ifndef OBJECTIF_H_
 #define OBJECTIF_H_
-
 #include <string>
 #include <vector>
 
