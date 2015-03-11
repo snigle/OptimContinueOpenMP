@@ -11,6 +11,9 @@
 #include "Fcarre.h"
 #include <vector>
 #include <iostream>
+#include <ctime>
+#include <cstdlib>
+
 class Essaim: public Algorithme {
 private:
 

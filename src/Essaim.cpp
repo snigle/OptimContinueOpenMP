@@ -49,20 +49,32 @@ void Essaim::initVectors() {
 }
 
 int Essaim::solve() {
-	unsigned c1, c2;
+	double c1, c2, r1, r2, rho1, rho2;
+	//double somVitesse = 0;
+	unsigned compteur = 0;
+	c1 = 1.5;
+	c2 = 2;
 	do {
 		for (unsigned i = 0; i < nbParticules; ++i) {
-			if (obj.f(particules[i])) > c[i] ) {
+			if (obj.f(particules[i]) > c[i] ) {
 				c[i] = obj.f( particules[i] );
 				xp[i] = particules[i];
 			}
 			majVoisins(i);
 		}
 		for (unsigned i = 0; i < nbParticules; ++i) {
-
-			vitesse[i] = (vitesse[i] );
+			do{
+				r1 = rand()/(double)RAND_MAX;
+				r2 = rand()/(double)RAND_MAX;
+				rho1 = c1 * r1;
+				rho2 = c2 * r2;
+			}while( rho1 + rho2 <= 4 );
+			vitesse[i] = coefConstriction( rho1, rho2)*(vitesse[i] + rho1*(xp[i] - particules[i]) + rho2*( xv[i] - particules[i]));
+			particules[i] = particules[i] + vitesse[i];
+			//somVitesse += vitesse[i];
 		}
-	} while (cArret);
+		compteur ++;
+	} while (compteur < cArret);
 }
 
 double Essaim::coefConstriction(double rho1, double rho2) {
