@@ -7,12 +7,14 @@
 
 #ifndef OBJECTIF_H_
 #define OBJECTIF_H_
+
 #include <string>
 #include <vector>
+
 class Objectif{
-public:
-	//virtual ~Objectif();
-	virtual void fonctionObjectif(std::vector<std::string> parametres)=0;
+	public:
+		//virtual ~Objectif();
+		virtual void fonctionObjectif(std::vector<std::string> parametres)=0;
 
 };
 
