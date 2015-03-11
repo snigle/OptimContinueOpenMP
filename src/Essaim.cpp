@@ -80,8 +80,8 @@ int Essaim::solve() {
 				rho1 = c1 * r1;
 				rho2 = c2 * r2;
 			}while( rho1 + rho2 <= 4 );
-			vitesse[i] = coefConstriction( rho1, rho2)*(vitesse[i] + rho1*(xp[i] - particules[i]) + rho2*( xv[i] - particules[i]));
-			particules[i] = particules[i] + vitesse[i];
+			//vitesse[i] = coefConstriction( rho1, rho2)*(vitesse[i] + rho1*(xp[i] - particules[i]) + rho2*( xv[i] - particules[i]));
+			//particules[i] = particules[i] + vitesse[i];
 			//somVitesse += vitesse[i];
 		}
 		compteur ++;
