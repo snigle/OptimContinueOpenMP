@@ -7,8 +7,8 @@
 
 #ifndef OBJECTIF_H_
 #define OBJECTIF_H_
-#include <string>
 #include <vector>
+#include<string>
 class Objectif{
 public:
 	//virtual ~Objectif();
