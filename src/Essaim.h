@@ -39,6 +39,7 @@ public:
 	int solve();
 	void initVectors();
 
+	double coefConstriction(double rho1, double rho2);
 	bool majVoisins(unsigned i);
 };
 
