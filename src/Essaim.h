@@ -35,8 +35,8 @@ public:
 			unsigned _cArret, std::vector<double> min, std::vector<double> max);
 	virtual ~Essaim();
 
-	int solve()const;
-	bool majVoisins(unsigned i)const;
+	int solve();
+	bool majVoisins(unsigned i);
 };
 
 #endif /* ESSAIM_H_ */
