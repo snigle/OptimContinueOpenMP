@@ -14,6 +14,7 @@
 template <typename FonctionObjetctif>
 class Algorithme {
 protected:
+
 	FonctionObjetctif fonctionObj ;
 public:
 	Algorithme(FonctionObjetctif fonction);
