@@ -80,7 +80,7 @@ int Essaim::solve() {
 double Essaim::coefConstriction(double rho1, double rho2) {
 	double rho;
 	rho = rho1 + rho2;
-	return (1 - (1/(rho)) + (sqrt(fabs( pow(rho, 2) - 4*rho ))/2) )
+	return (1 - (1/(rho)) + (sqrt(fabs( pow(rho, 2) - 4*rho ))/2) );
 }
 
 bool Essaim::majVoisins(unsigned i) {
