@@ -15,7 +15,7 @@ void fCarre(){
 
 void initEssaim(){
 	F_carre f;
-	Essaim e = Essaim(f, 0.02, 0.02, 5,1);
+	Essaim<F_carre> e(f, 0.02, 0.02, 5,1);
 	e.initVectors();
 	e.afficherParticules();
 
