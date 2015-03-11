@@ -17,6 +17,6 @@ F_carre::~F_carre() {
 }
 
 double F_carre::f(std::vector<double> parametres) {
-	return parametres.at(0) * parametres.at(0);
+	return parametres[0] * parametres[0];
 
 }
