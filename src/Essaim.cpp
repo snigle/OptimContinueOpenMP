@@ -60,6 +60,7 @@ void Essaim::initVectors() {
 }
 
 int Essaim::solve() {
+	unsigned c1, c2;
 	do {
 		for (unsigned i = 0; i < nbParticules; ++i) {
 			if (obj.f(particules[i]) < c[i]) {
@@ -69,10 +70,17 @@ int Essaim::solve() {
 			majVoisins(i);
 		}
 		for (unsigned i = 0; i < nbParticules; ++i) {
-			//vitesse[i] = (vitesse[i]);
+
+			vitesse[i] = (vitesse[i] );
 		}
 	} while (cArret);
 	return 1;
+}
+
+double Essaim::coefConstriction(double rho1, double rho2) {
+	double rho;
+	rho = rho1 + rho2;
+	return (1 - (1/(rho)) + (sqrt(fabs( pow(rho, 2) - 4*rho ))/2) )
 }
 
 bool Essaim::majVoisins(unsigned i) {
