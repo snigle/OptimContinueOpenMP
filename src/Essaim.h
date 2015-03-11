@@ -35,8 +35,11 @@ public:
 	Essaim(F_carre _obj, double _c1, double _c2, unsigned _nbParticules,
 			unsigned _cArret);
 	virtual ~Essaim();
-	int solve() const;
+
 	void initVectors();
+
+	int solve()const;
+	bool majVoisins(unsigned i);
 };
 
 #endif /* ESSAIM_H_ */

@@ -8,6 +8,7 @@
 #include "Essaim.h"
 using namespace std;
 
+
 Essaim::Essaim(F_carre _obj, double _c1, double _c2, unsigned _nbParticules,
 		unsigned _cArret) :
 		obj(_obj), c1 { _c1 }, c2 { _c2 }, nbParticules { _nbParticules }, cArret {
@@ -19,9 +20,17 @@ Essaim::Essaim(F_carre _obj, double _c1, double _c2, unsigned _nbParticules,
 				vector<double>(_nbParticules)) {
 }
 
-int Essaim::solve() const {
-
-}
+//int Essaim::solve()const{
+//	do {
+//		for (unsigned i = 0; i < nbParticules; ++i) {
+//			if (obj.f(particules(i)) > c ) {
+//				c = obj.f( particules(i) );
+//				xp = particules(i);
+//			}
+//
+//		}
+//	} while (cArret);
+//}
 
 void Essaim::initVectors(){
 	vector<double> min = obj.getMin();
@@ -50,4 +59,24 @@ void Essaim::initVectors(){
 			xp[i] = particules[i];
 
 		}
+}
+bool Essaim::majVoisins(unsigned i) {
+	bool majEffectue { false };
+	// Topologie anneau
+	int v1 { i - 1 };
+	int v2 { i + 1 };
+	if( v1 < 0 ) v1 = nbParticules-1;
+	if( v2 == nbParticules ) v2 = 0;
+
+	if (obj.f(particules[v1]) > cv[i] ) {
+		cv[i] = obj.f( particules[v1] );
+		xp[i] = particules[v1];
+		majEffectue = true;
+	}
+	if (obj.f(particules[v2]) > cv[i] ) {
+		cv[i] = obj.f( particules[v2] );
+		xp[i] = particules[v2];
+		majEffectue = true;
+	}
+	return majEffectue;
 }
