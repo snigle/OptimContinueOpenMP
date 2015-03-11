@@ -10,6 +10,7 @@
 #include "Algorithme.h"
 #include "Fcarre.h"
 #include <vector>
+#include <iostream>
 class Essaim: public Algorithme {
 private:
 
@@ -25,16 +26,17 @@ private:
 	std::vector<std::vector<double>> xp;
 	std::vector<double> cv;
 	std::vector<std::vector<double>> xv;
-	std::vector<std::vector<double>> v;
+	std::vector<std::vector<double>> vitesse;
 
 	std::vector<double> borneMin;
 	std::vector<double> borneMax;
 
 public:
 	Essaim(F_carre _obj, double _c1, double _c2, unsigned _nbParticules,
-			unsigned _cArret, std::vector<double> min, std::vector<double> max);
+			unsigned _cArret);
 	virtual ~Essaim();
 	int solve() const;
+	void initVectors();
 };
 
 #endif /* ESSAIM_H_ */

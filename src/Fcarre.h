@@ -16,6 +16,9 @@ public:
 	virtual ~F_carre();
 
 	double f(std::vector<double> parametres);
+
+	std::vector<double> getMin();
+	std::vector<double> getMax();
 };
 
 #endif /* SRC_FCARRE_H_ */
