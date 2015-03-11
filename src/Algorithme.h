@@ -12,12 +12,12 @@
 
 class Algorithme {
 protected:
-	Objectif fonctionObjectif;
+	/*Objectif fonctionObjectif;*/
 public:
 	Algorithme();
-	Algorithme(Objectif);
+	/*Algorithme(Objectif);*/
 	virtual ~Algorithme();
-	virtual int solve()const;
+	//virtual int solve()const;
 
 };
 

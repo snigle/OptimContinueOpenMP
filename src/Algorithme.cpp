@@ -12,9 +12,9 @@ Algorithme::Algorithme() {
 
 }
 
-Algorithme::Algorithme(Objectif fonction):fonctionObjectif(fonction)
-{
-}
+//Algorithme::Algorithme(Objectif fonction):fonctionObjectif(fonction)
+//{
+//}
 
 Algorithme::~Algorithme() {
 	// TODO Auto-generated destructor stub
