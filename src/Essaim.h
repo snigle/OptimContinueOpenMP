@@ -11,7 +11,7 @@
 #include "Fcarre.h"
 #include <vector>
 #include <iostream>
-class Essaim: public Algorithme {
+class Essaim: {//public Algorithme {
 private:
 
 	F_carre obj;

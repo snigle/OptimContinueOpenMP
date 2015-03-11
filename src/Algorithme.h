@@ -18,12 +18,13 @@ protected:
 public:
 	Algorithme(FonctionObjetctif fonction);
 	virtual ~Algorithme();
-	virtual int solve()const;
+	virtual int solve()=0;
 
 };
 
 template<typename FonctionObjetctif>
 Algorithme<FonctionObjetctif>::~Algorithme() {
+
 }
 
 template<typename FonctionObjetctif>
@@ -34,8 +35,5 @@ Algorithme<FonctionObjetctif>::Algorithme(FonctionObjetctif fonction):fonctionOb
 	}
 }
 
-template<typename FonctionObjetctif>
-int Algorithme<FonctionObjetctif>::solve() const {
-}
 
 #endif /* ALGORITHME_H_ */

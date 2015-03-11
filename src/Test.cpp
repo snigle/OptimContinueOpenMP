@@ -2,9 +2,17 @@
 #include "ide_listener.h"
 #include "xml_listener.h"
 #include "cute_runner.h"
+#include "Algorithme.h"
+#include "Objectif.h"
 
 void init() {
 	ASSERTM("start writing tests",true);
+}
+
+//Test sur la classe Algorithme.
+
+void algo(){
+
 }
 
 void runAllTests(int argc, char const *argv[]){
