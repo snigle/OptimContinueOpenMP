@@ -39,6 +39,7 @@ private:
 	//Vitesse des particules
 	std::vector<std::vector<double>> vitesse;
 
+	std::vector<double> resultat;
 
 public:
 	/*Essaim(F& f, const double& d, const double& e, const int& i,
@@ -49,7 +50,7 @@ public:
 			unsigned _cArret);
 	virtual ~Essaim();
 
-	std::vector<double> solve();
+	void solve();
 	void initVectors();
 
 	double coefConstriction(double rho1, double rho2);
@@ -58,8 +59,13 @@ public:
 
 	void afficherParticules();
 	void afficherMeilleurVoisin();
+
+template<typename U>
+	friend std::ostream& operator<<(std::ostream& out, const Essaim<U>& e);
 };
 
+template <typename F>
+std::ostream& operator<<(std::ostream& out, const Essaim<F>& e);
 
 template <typename F>
 Essaim<F>::Essaim(F _obj, double _c1, double _c2, unsigned _nbParticules,
@@ -71,7 +77,8 @@ Essaim<F>::Essaim(F _obj, double _c1, double _c2, unsigned _nbParticules,
 				std::vector<std::vector<double>>(_nbParticules)), cv(
 				std::vector<double>(_nbParticules)), xv(
 				std::vector<std::vector<double>>(_nbParticules)), vitesse(
-				std::vector<std::vector<double>>(_nbParticules)) {
+				std::vector<std::vector<double>>(_nbParticules)),
+				resultat(std::vector<double>(_obj.getMax().size())){
 }
 template <typename F>
 Essaim<F>::~Essaim() {
@@ -107,17 +114,23 @@ void Essaim<F>::initVectors() {
 		}
 		c[i] = obj.f(particules[i]);
 		xp[i] = particules[i];
+
 		c[i] = std::numeric_limits<double>::max();
+		cv[i] = c[(i+1)%nbParticules];
 	}
+
 	for (unsigned i = 0; i < nbParticules; ++i) {
+		xv[i] = particules[(i+1)%nbParticules];
+		cv[i] = c[(i+1)%nbParticules];
 		majVoisins(i);
 	}
 }
 template <typename F>
 
-std::vector<double> Essaim<F>::solve(){
+void Essaim<F>::solve(){
 	double c1, c2, r1, r2, rho1, rho2;
 	//double somVitesse = 0;
+
 	unsigned compteur = 0;
 	c1 = 1.5;
 	c2 = 2;
@@ -130,21 +143,32 @@ std::vector<double> Essaim<F>::solve(){
 			majVoisins(i);
 		}
 		for (unsigned i = 0; i < nbParticules; ++i) {
-			do{
+			//do{
 				r1 = rand()/(double)RAND_MAX;
 				r2 = rand()/(double)RAND_MAX;
 				rho1 = c1 * r1;
 				rho2 = c2 * r2;
-			}while( rho1 + rho2 <= 4 );
+			//}while( rho1 + rho2 <= 4 );
 			for (unsigned j = 0; j < dimension; ++j) {
+				double var = vitesse[i][j];
+				double var2 = xp[i][j];
+				double var3 = xv[i][j];
+				double var4 = particules[i][j];
 				vitesse[i][j] = coefConstriction( rho1, rho2)*(vitesse[i][j] + rho1*(xp[i][j] - particules[i][j]) + rho2*( xv[i][j] - particules[i][j]));
 				particules[i][j] = particules[i][j] + vitesse[i][j];
 				//somVitesse += vitesse[i][j];
 			}
+
 		}
 		compteur ++;
+		if( compteur%100 == 0  ){
+			resultat = xp[positionMinimumGlobal()];
+			std::cout<<*this<<std::endl;
+		}
 	} while (compteur < cArret );
-	return xp[positionMinimumGlobal()];
+
+	resultat = xp[positionMinimumGlobal()];
+
 }
 
 template <typename F>
@@ -212,5 +236,15 @@ template <typename F>
 void Essaim<F>::afficherMeilleurVoisin() {
 }
 
+
+template <typename F>
+std::ostream& operator<<(std::ostream& out, const Essaim<F>& e){
+	out<<"F(";
+	for (unsigned i = 0; i < e.dimension; ++i) {
+		out<<e.resultat[i]<<",";
+	}
+	out<<") = "<<e.obj.f(e.resultat)<<std::endl;
+	return out;
+}
 
 #endif /* ESSAIM_H_ */
