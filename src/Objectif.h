@@ -12,8 +12,8 @@
 
 class Objectif{
 	public:
-		//virtual ~Objectif();
-		virtual void fonctionObjectif(std::vector<std::string> parametres)=0;
+		virtual ~Objectif();
+		virtual double f(std::vector<double> parametres)=0;
 
 };
 

@@ -9,8 +9,9 @@
 #define SRC_FCARRE_H_
 
 #include <vector>
+#include "Objectif.h"
 
-class F_carre {
+class F_carre:public Objectif {
 public:
 	F_carre();
 	virtual ~F_carre();
