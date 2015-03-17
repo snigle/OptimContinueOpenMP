@@ -95,8 +95,7 @@ void Essaim<F>::initVectors() {
 	std::vector<std::uniform_real_distribution<double>> distributionParticule(
 			dimension);
 	for (unsigned j = 0; j < dimension; ++j) {
-		distributionParticule[j] = std::uniform_real_distribution<double>(min[j],
-				max[j]);
+		distributionParticule[j] = std::uniform_real_distribution<double>(min[j],max[j]);
 	}
 
 	for (unsigned i = 0; i < nbParticules; ++i) {
