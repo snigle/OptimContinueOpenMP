@@ -9,14 +9,14 @@
 #define SRC_FCARRE_H_
 
 #include <vector>
-#include "Objectif.h"
 
-class F_carre:public Objectif {
+
+class F_carre {
 public:
 	F_carre();
 	virtual ~F_carre();
 
-	double f(std::vector<double> parametres);
+	double f(const std::vector<double>& parametres) const;
 
 	std::vector<double> getMin();
 	std::vector<double> getMax();

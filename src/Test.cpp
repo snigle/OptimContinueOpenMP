@@ -1,9 +1,10 @@
-#include "cute.h"
-#include "ide_listener.h"
-#include "xml_listener.h"
-#include "cute_runner.h"
+#include "../cute/cute.h"
+#include "../cute/ide_listener.h"
+#include "../cute/xml_listener.h"
+#include "../cute/cute_runner.h"
 #include "Fcarre.h"
 #include "Essaim.h"
+#include <iostream>
 using namespace std;
 
 void fCarre(){
@@ -34,10 +35,12 @@ void algo(){
 
 void solveEssaim(){
 	F_carre f;
-	Essaim<F_carre> e(f, 0.02, 0.02, 5,1);
+	Essaim<F_carre> e(f, 0.02, 0.02, 100,1000);
 	e.initVectors();
 	e.afficherParticules();
+
 	e.solve();
+	cout<<e<<endl;
 
 
 }
@@ -47,6 +50,7 @@ void runAllTests(int argc, char const *argv[]){
 
 	s.push_back(CUTE(init));
 	s.push_back(CUTE(fCarre));
+	s.push_back(CUTE(solveEssaim));
 
 	cute::xml_file_opener xmlfile(argc,argv);
 	cute::xml_listener<cute::ide_listener<> >  lis(xmlfile.out);
@@ -54,8 +58,8 @@ void runAllTests(int argc, char const *argv[]){
 }
 
 int main(int argc, char const *argv[]){
-    //runAllTests(argc,argv);
-	initEssaim();
+    runAllTests(argc,argv);
+	//initEssaim();
     return 0;
 }
 
