@@ -5,22 +5,22 @@
  *      Author: eisti
  */
 
-#ifndef SRC_FBOHCHEVSKY_H_
-#define SRC_FBOHCHEVSKY_H_
+#ifndef SRC_FBOHACHEVSKY_H_
+#define SRC_FBOHACHEVSKY_H_
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 #include <vector>
 #include <math.h>
 #include<iostream>
-class Fbohchevsky {
+class Fbohachevsky {
 public:
-	Fbohchevsky();
-	virtual ~Fbohchevsky();
+	Fbohachevsky();
+	virtual ~Fbohachevsky();
 	double f(std::vector<double> params);
 
 	std::vector<double> getMin();
 	std::vector<double> getMax();
 };
 
-#endif /* SRC_FBOHCHEVSKY_H_ */
+#endif /* SRC_FBOHACHEVSKY_H_ */
