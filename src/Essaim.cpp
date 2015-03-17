@@ -65,6 +65,7 @@ int Essaim::solve() {
 	unsigned compteur = 0;
 	c1 = 1.5;
 	c2 = 2;
+	//min global
 	do {
 		for (unsigned i = 0; i < nbParticules; ++i) {
 			if (obj.f(particules[i]) < c[i]) {
