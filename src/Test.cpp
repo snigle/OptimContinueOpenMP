@@ -1,7 +1,7 @@
-#include "cute.h"
-#include "ide_listener.h"
-#include "xml_listener.h"
-#include "cute_runner.h"
+#include "../cute/cute.h"
+#include "../cute/ide_listener.h"
+#include "../cute/xml_listener.h"
+#include "../cute/cute_runner.h"
 #include "Fcarre.h"
 #include "Essaim.h"
 using namespace std;
