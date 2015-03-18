@@ -7,3 +7,7 @@
 
 #include "Algorithme.h"
 
+
+Algorithme::~Algorithme() {
+
+}

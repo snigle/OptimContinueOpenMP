@@ -6,3 +6,6 @@
  */
 
 #include "Objectif.h"
+Objectif::~Objectif(){
+
+}
