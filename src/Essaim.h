@@ -107,17 +107,18 @@ void Essaim<F>::initVectors() {
 	}
 
 	for (unsigned i = 0; i < nbParticules; ++i) {
-		particules[i] = std::vector<double>(min.size());
-		vitesse[i] = std::vector<double>(min.size());
+//		particules[i] = std::vector<double>(min.size());
+//		vitesse[i] = std::vector<double>(min.size());
 		for (unsigned j = 0; j < min.size(); ++j) {
-			particules[i][j] = distributionParticule[j](generator);
-			vitesse[i][j] = distribution(generator);
+			double tmp = distributionParticule[j](generator);
+			particules[i].push_back(tmp);
+			xp[i].push_back(tmp);
+			tmp = distribution(generator);
+			vitesse[i].push_back(tmp);
 		}
 		c[i] = obj.f(particules[i]);
-		xp[i] = particules[i];
-
-		c[i] = std::numeric_limits<double>::max();
-		cv[i] = c[(i+1)%nbParticules];
+//c[i] = std::numeric_limits<double>::max();
+//		cv[i] = c[(i+1)%nbParticules];
 	}
 
 	for (unsigned i = 0; i < nbParticules; ++i) {
@@ -133,9 +134,11 @@ void Essaim<F>::solve(){
 	//double somVitesse = 0;
 
 	unsigned compteur = 0;
-	c1 = 1.5;
-	c2 = 2;
+	c1 = 3;
+	c2 = 3;
 	do {
+//		std::cout<<"compteur: "<<compteur<<std::endl;
+//		this->afficherParticules();
 		for (unsigned i = 0; i < nbParticules; ++i) {
 			if (obj.f(particules[i]) < c[i]) {
 				c[i] = obj.f(particules[i]);
@@ -146,23 +149,29 @@ void Essaim<F>::solve(){
 		for (unsigned i = 0; i < nbParticules; ++i) {
 			//do{
 				r1 = rand()/(double)RAND_MAX;
-				r2 = rand()/(double)RAND_MAX;
-				rho1 = c1 * r1;
-				rho2 = c2 * r2;
+//				r2 = rand()/(double)RAND_MAX;
+//				rho1 = c1 * r1;
+//				rho2 = c2 * r2;
 			//}while( rho1 + rho2 <= 4 );
 			for (unsigned j = 0; j < dimension; ++j) {
-				double var = vitesse[i][j];
-				double var2 = xp[i][j];
-				double var3 = xv[i][j];
-				double var4 = particules[i][j];
-				vitesse[i][j] = coefConstriction( rho1, rho2)*(vitesse[i][j] + rho1*(xp[i][j] - particules[i][j]) + rho2*( xv[i][j] - particules[i][j]));
+//				double var = vitesse[i][j];
+//				double var2 = xp[i][j];
+//				double var3 = xv[i][j];
+//				double var4 = particules[i][j];
+				double var5 = ((rand()/(double)RAND_MAX)*(1.2-0.8)+0.8);
+				vitesse[i][j] = var5*(vitesse[i][j]) + r1*(xp[i][j] - particules[i][j]) + (1-r1)*( xv[i][j] - particules[i][j]);
+
 				particules[i][j] = particules[i][j] + vitesse[i][j];
+				if(particules[i][j] < obj.getMin()[j] || particules[i][j] > obj.getMax()[j] ) {
+					vitesse[i][j] = 0;
+				}
 				//somVitesse += vitesse[i][j];
 			}
 
 		}
 		compteur ++;
-		if( compteur%100 == 0  ){
+		if( compteur%100==0 ){
+			//this->afficherParticules();
 			resultat = xp[positionMinimumGlobal()];
 			std::cout<<*this<<std::endl;
 		}
@@ -179,7 +188,7 @@ unsigned Essaim<F>::positionMinimumGlobal(){
 	double best_val;
 	best_position = 0;
 	best_val = c[0];
-	for (unsigned i = 1; i < dimension; ++i) {
+	for (unsigned i = 1; i < nbParticules; ++i) {
 		if( best_val >= c[i]){
 			best_position = i;
 			best_val = c[i];
@@ -211,12 +220,12 @@ bool Essaim<F>::majVoisins(unsigned i) {
 
 	if (obj.f(particules[v1]) < cv[i]) {
 		cv[i] = obj.f(particules[v1]);
-		xp[i] = particules[v1];
+		xv[i] = particules[v1];
 		majEffectue = true;
 	}
 	if (obj.f(particules[v2]) < cv[i]) {
 		cv[i] = obj.f(particules[v2]);
-		xp[i] = particules[v2];
+		xv[i] = particules[v2];
 		majEffectue = true;
 	}
 	return majEffectue;
@@ -224,14 +233,59 @@ bool Essaim<F>::majVoisins(unsigned i) {
 template <typename F>
 
 void Essaim<F>::afficherParticules() {
+	std::cout <<"p: | ";
 	for (unsigned i = 0; i < nbParticules; ++i) {
-		std::cout << "(";
+
 		for (unsigned j = 0; j < dimension; ++j) {
-			std::cout << particules[i][j] << ", ";
+			std::cout << particules[i][j] << " , ";
 		}
-		std::cout << ")" << std::endl;
+		std::cout<<"|";
 	}
+	std::cout <<std::endl;
+
+	std::cout << "xp: | ";
+	for (unsigned i = 0; i < nbParticules; ++i) {
+
+		for (unsigned j = 0; j < dimension; ++j) {
+			std::cout << xp[i][j] << " , ";
+		}
+		std::cout<<"|";
+
+	}
+	std::cout <<std::endl;
+
+	std::cout << "c: | ";
+	for (unsigned i = 0; i < nbParticules; ++i) {
+
+			std::cout << c[i] << " | ";
+
+	}
+	std::cout <<std::endl;
+
+	std::cout << "xv: | ";
+	for (unsigned i = 0; i < nbParticules; ++i) {
+
+		for (unsigned j = 0; j < dimension; ++j) {
+			std::cout << xv[i][j] << " , ";
+		}
+		std::cout<<"|";
+	}
+	std::cout<<std::endl;
+
+	std::cout << "v: | ";
+	for (unsigned i = 0; i < nbParticules; ++i) {
+
+		for (unsigned j = 0; j < dimension; ++j) {
+			std::cout << vitesse[i][j] << " , ";
+		}
+		std::cout<<"|";
+	}
+	std::cout <<std::endl<<"----------------------------------"<<std::endl;
+
+
 }
+
+
 template <typename F>
 
 void Essaim<F>::afficherMeilleurVoisin() {

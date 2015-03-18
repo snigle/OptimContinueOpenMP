@@ -24,11 +24,11 @@ double F_carre::f(const std::vector<double>& parametres) const{
 
 vector<double> F_carre::getMin(){
 	vector<double> x(1);
-	x[0] = -1;
+	x[0] = -5;
 	return x;
 }
 vector<double> F_carre::getMax(){
 	vector<double> x(1);
-		x[0] = 1;
+		x[0] = 5;
 		return x;
 }
