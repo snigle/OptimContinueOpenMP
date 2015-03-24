@@ -10,6 +10,7 @@
 #include "Fcarre.h"
 #include <vector>
 #include <iostream>
+#include <memory>
 #include <ctime>
 #include <cstdlib>
 #include <random>
@@ -27,19 +28,19 @@ private:
 
 	unsigned dimension;
 
-	std::vector<std::vector<double>> particules;
+	std::unique_ptr<std::vector<std::vector<double>>> pparticules;
 	//Cout minimal par particules
-	std::vector<double> c;
+	std::unique_ptr<std::vector<double>> pc;
 	//Position du cout minimal
-	std::vector<std::vector<double>> xp;
+	std::unique_ptr<std::vector<std::vector<double>>> pxp;
 	//Cout minimal du voisinage d'une particule
-	std::vector<double> cv;
+	std::unique_ptr<std::vector<double>> pcv;
 	//Position du cout minimal du voisinage
-	std::vector<std::vector<double>> xv;
+	std::unique_ptr<std::vector<std::vector<double>>> pxv;
 	//Vitesse des particules
-	std::vector<std::vector<double>> vitesse;
+	std::unique_ptr<std::vector<std::vector<double>>> pvitesse;
 
-	std::vector<double> resultat;
+	std::vector<double> posResultat;
 
 public:
 	/*Essaim(F& f, const double& d, const double& e, const int& i,
@@ -69,16 +70,17 @@ std::ostream& operator<<(std::ostream& out, const Essaim<F>& e);
 
 template <typename F>
 Essaim<F>::Essaim(F _obj, double _c1, double _c2, unsigned _nbParticules,
-		unsigned _cArret) : obj(_obj),
-		 c1(_c1), c2(_c2), nbParticules(_nbParticules), cArret(
-				_cArret), dimension(_obj.getMax().size()), particules(
-				std::vector<std::vector<double>>(_nbParticules)), c(
-				std::vector<double>(_nbParticules)), xp(
-				std::vector<std::vector<double>>(_nbParticules)), cv(
-				std::vector<double>(_nbParticules)), xv(
-				std::vector<std::vector<double>>(_nbParticules)), vitesse(
-				std::vector<std::vector<double>>(_nbParticules)),
-				resultat(std::vector<double>(_obj.getMax().size())){
+		unsigned _cArret) :
+		obj(_obj),
+		 c1(_c1), c2(_c2), nbParticules(_nbParticules),
+		 cArret(_cArret), dimension(_obj.getMax().size()),
+		 pparticules(new std::vector<std::vector<double>>(_nbParticules)),
+		 pc(new std::vector<double>(_nbParticules)),
+		 pxp(new std::vector<std::vector<double>>(_nbParticules)),
+		 pcv(new std::vector<double>(_nbParticules)),
+		 pxv(new std::vector<std::vector<double>>(_nbParticules)),
+		pvitesse( new std::vector<std::vector<double>>(_nbParticules)),
+		posResultat(std::vector<double>(_obj.getMax().size())){
 }
 template <typename F>
 Essaim<F>::~Essaim() {
@@ -89,6 +91,12 @@ template <typename F>
 void Essaim<F>::initVectors() {
 	std::vector<double> min = obj.getMin();
 	std::vector<double> max = obj.getMax();
+	std::vector<std::vector<double>>& particules = *pparticules;
+	std::vector<std::vector<double>>& xp = *pxp;
+	std::vector<std::vector<double>>& vitesse = *pvitesse;
+	std::vector<double>& c = *pc;
+	std::vector<std::vector<double>>& xv = *pxv;
+	std::vector<double>& cv = *pcv;
 
 	if (min.size() != max.size()) {
 		std::cerr
@@ -130,19 +138,38 @@ void Essaim<F>::initVectors() {
 template <typename F>
 
 void Essaim<F>::solve(){
-	double c1, c2, r1, r2, rho1, rho2;
+	double r1;
+//	double c1, c2, r2, rho1, rho2;
+	double Fi;
+	std::vector<double> min = obj.getMin();
+	std::vector<double> max = obj.getMax();
+
+	std::vector<std::vector<double>>& particules = *pparticules;
+	std::vector<std::vector<double>>& xp = *pxp;
+	std::vector<std::vector<double>>& vitesse = *pvitesse;
+	std::vector<double>& c = *pc;
+	std::vector<std::vector<double>>& xv = *pxv;
+	std::vector<double>& cv = *pcv;
+
+	double valResultat{c[0]};
+	posResultat = particules[0];
 	//double somVitesse = 0;
 
 	unsigned compteur = 0;
-	c1 = 3;
-	c2 = 3;
+//	c1 = 3;
+//	c2 = 3;
 	do {
 //		std::cout<<"compteur: "<<compteur<<std::endl;
 //		this->afficherParticules();
 		for (unsigned i = 0; i < nbParticules; ++i) {
-			if (obj.f(particules[i]) < c[i]) {
-				c[i] = obj.f(particules[i]);
+			Fi = obj.f(particules[i]);
+			if (Fi < c[i]) {
+				c[i] = Fi;
 				xp[i] = particules[i];
+				if(valResultat>c[i]){
+					valResultat = c[i];
+					posResultat = xp[i];
+				}
 			}
 			majVoisins(i);
 		}
@@ -168,16 +195,18 @@ void Essaim<F>::solve(){
 				//somVitesse += vitesse[i][j];
 			}
 
+
 		}
 		compteur ++;
-		if( compteur%100==0 ){
-			//this->afficherParticules();
-			resultat = xp[positionMinimumGlobal()];
-			std::cout<<*this<<std::endl;
-		}
+//		if( compteur%100==0 ){
+//			//this->afficherParticules();
+//			posResultat = xp[positionMinimumGlobal()];
+//			std::cout<<*this<<std::endl;
+//		}
 	} while (compteur < cArret );
 
-	resultat = xp[positionMinimumGlobal()];
+	//posResultat = xp[positionMinimumGlobal()];
+
 
 }
 
@@ -186,6 +215,7 @@ template <typename F>
 unsigned Essaim<F>::positionMinimumGlobal(){
 	unsigned best_position;
 	double best_val;
+	std::vector<double>& c = *pc;
 	best_position = 0;
 	best_val = c[0];
 	for (unsigned i = 1; i < nbParticules; ++i) {
@@ -209,22 +239,36 @@ template <typename F>
 
 bool Essaim<F>::majVoisins(unsigned i) {
 	bool majEffectue { false };
+	std::vector<double> min = obj.getMin();
+	std::vector<double> max = obj.getMax();
+	std::vector<std::vector<double>>& particules = *pparticules;
+	std::vector<std::vector<double>>& xp = *pxp;
+	std::vector<std::vector<double>>& vitesse = *pvitesse;
+	std::vector<double>& c = *pc;
+	std::vector<std::vector<double>>& xv = *pxv;
+	std::vector<double>& cv = *pcv;
+	double F1;
+	double F2;
 
 	// Topologie anneau
 	unsigned v1 { i - 1 };
 	unsigned v2 { i + 1 };
+
+	F1 = obj.f(particules[v1]);
+	F2 = obj.f(particules[v2]);
+
 	if (i == 0)
 		v1 = nbParticules - 1;
 	if (v2 == nbParticules)
 		v2 = 0;
 
-	if (obj.f(particules[v1]) < cv[i]) {
-		cv[i] = obj.f(particules[v1]);
+	if (F1 < cv[i]) {
+		cv[i] = F1;
 		xv[i] = particules[v1];
 		majEffectue = true;
 	}
-	if (obj.f(particules[v2]) < cv[i]) {
-		cv[i] = obj.f(particules[v2]);
+	if (F2 < cv[i]) {
+		cv[i] = F2;
 		xv[i] = particules[v2];
 		majEffectue = true;
 	}
@@ -233,6 +277,14 @@ bool Essaim<F>::majVoisins(unsigned i) {
 template <typename F>
 
 void Essaim<F>::afficherParticules() {
+	std::vector<double> min = obj.getMin();
+	std::vector<double> max = obj.getMax();
+	std::vector<std::vector<double>>& particules = *pparticules;
+	std::vector<std::vector<double>>& xp = *pxp;
+	std::vector<std::vector<double>>& vitesse = *pvitesse;
+	std::vector<double>& c = *pc;
+	std::vector<std::vector<double>>& xv = *pxv;
+	std::vector<double>& cv = *pcv;
 	std::cout <<"p: | ";
 	for (unsigned i = 0; i < nbParticules; ++i) {
 
@@ -296,9 +348,9 @@ template <typename F>
 std::ostream& operator<<(std::ostream& out, const Essaim<F>& e){
 	out<<"F(";
 	for (unsigned i = 0; i < e.dimension; ++i) {
-		out<<e.resultat[i]<<",";
+		out<<e.posResultat[i]<<",";
 	}
-	out<<") = "<<e.obj.f(e.resultat)<<std::endl;
+	out<<") = "<<e.obj.f(e.posResultat)<<std::endl;
 	return out;
 }
 
