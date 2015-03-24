@@ -17,7 +17,7 @@ F_carre::~F_carre() {
 	// TODO Auto-generated destructor stub
 }
 
-double F_carre::f(std::vector<double> parametres) {
+double F_carre::f(const std::vector<double>& parametres) const{
 	return parametres[0] * parametres[0];
 
 }

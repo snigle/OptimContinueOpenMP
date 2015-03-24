@@ -7,19 +7,19 @@
 
 #ifndef ESSAIM_H_
 #define ESSAIM_H_
-#include "Algorithme.h"
 #include "Fcarre.h"
+#include "../cute/cute_base.h"
 #include <vector>
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
 #include <random>
 
-template <typename FonctionObjetctif>
-class Essaim : public Algorithme {
+template <typename F>
+class Essaim {
 private:
 
-    FonctionObjetctif obj;
+    F obj;
     double c1;
     double c2;
 
@@ -40,31 +40,40 @@ private:
     //Vitesse des particules
     std::vector<std::vector<double>> vitesse;
 
+    std::vector<double> resultat;
 
 public:
-    /*Essaim(FonctionObjetctif& f, const double& d, const double& e, const int& i,
+
+    /*Essaim(F& f, const double& d, const double& e, const int& i,
             const int& j) {
     }*/
 
-    Essaim(FonctionObjetctif _obj, double _c1, double _c2, unsigned _nbParticules,
+    Essaim(F _obj, double _c1, double _c2, unsigned _nbParticules,
             unsigned _cArret);
     virtual ~Essaim();
 
-    int solve();
+    void solve();
     void initVectors();
 
     double coefConstriction(double rho1, double rho2);
-    bool majVoisins(const unsigned i);
+    bool majVoisins(unsigned i);
+    unsigned positionMinimumGlobal();
 
     void afficherParticules();
     void afficherMeilleurVoisin();
 
     void testMajVoisins();
+    void testInit();
 
+    template<typename U>
+    friend std::ostream& operator<<(std::ostream& out, const Essaim<U>& e);
 };
 
-template <typename FonctionObjetctif>
-Essaim<FonctionObjetctif>::Essaim(FonctionObjetctif _obj, double _c1, double _c2, unsigned _nbParticules,
+template <typename F>
+std::ostream& operator<<(std::ostream& out, const Essaim<F>& e);
+
+template <typename F>
+Essaim<F>::Essaim(F _obj, double _c1, double _c2, unsigned _nbParticules,
         unsigned _cArret) : obj(_obj),
 c1(_c1), c2(_c2), nbParticules(_nbParticules), cArret(
 _cArret), dimension(_obj.getMax().size()), particules(
@@ -73,17 +82,18 @@ std::vector<double>(_nbParticules)), xp(
 std::vector<std::vector<double>>(_nbParticules)), cv(
 std::vector<double>(_nbParticules)), xv(
 std::vector<std::vector<double>>(_nbParticules)), vitesse(
-std::vector<std::vector<double>>(_nbParticules)) {
+std::vector<std::vector<double>>(_nbParticules)),
+resultat(std::vector<double>(_obj.getMax().size())) {
 }
 
-template <typename FonctionObjetctif>
-Essaim<FonctionObjetctif>::~Essaim() {
+template <typename F>
+Essaim<F>::~Essaim() {
 
 }
 
-template <typename FonctionObjetctif>
+template <typename F>
 
-void Essaim<FonctionObjetctif>::initVectors() {
+void Essaim<F>::initVectors() {
     std::vector<double> min = obj.getMin();
     std::vector<double> max = obj.getMax();
 
@@ -112,18 +122,24 @@ void Essaim<FonctionObjetctif>::initVectors() {
         }
         c[i] = obj.f(particules[i]);
         xp[i] = particules[i];
+
         c[i] = std::numeric_limits<double>::max();
+        cv[i] = c[(i + 1) % nbParticules];
     }
+
     for (unsigned i = 0; i < nbParticules; ++i) {
+        xv[i] = particules[(i + 1) % nbParticules];
+        cv[i] = c[(i + 1) % nbParticules];
         majVoisins(i);
     }
 }
 
-template <typename FonctionObjetctif>
+template <typename F>
 
-int Essaim<FonctionObjetctif>::solve() {
+void Essaim<F>::solve() {
     double c1, c2, r1, r2, rho1, rho2;
     //double somVitesse = 0;
+
     unsigned compteur = 0;
     c1 = 1.5;
     c2 = 2;
@@ -136,32 +152,61 @@ int Essaim<FonctionObjetctif>::solve() {
             majVoisins(i);
         }
         for (unsigned i = 0; i < nbParticules; ++i) {
-            do {
-                r1 = rand() / (double) RAND_MAX;
-                r2 = rand() / (double) RAND_MAX;
-                rho1 = c1 * r1;
-                rho2 = c2 * r2;
-            } while (rho1 + rho2 <= 4);
-            //vitesse[i] = coefConstriction( rho1, rho2)*(vitesse[i] + rho1*(xp[i] - particules[i]) + rho2*( xv[i] - particules[i]));
-            //particules[i] = particules[i] + vitesse[i];
-            //somVitesse += vitesse[i];
+            //do{
+            r1 = rand() / (double) RAND_MAX;
+            r2 = rand() / (double) RAND_MAX;
+            rho1 = c1 * r1;
+            rho2 = c2 * r2;
+            //}while( rho1 + rho2 <= 4 );
+            for (unsigned j = 0; j < dimension; ++j) {
+                double var = vitesse[i][j];
+                double var2 = xp[i][j];
+                double var3 = xv[i][j];
+                double var4 = particules[i][j];
+                vitesse[i][j] = coefConstriction(rho1, rho2)*(vitesse[i][j] + rho1 * (xp[i][j] - particules[i][j]) + rho2 * (xv[i][j] - particules[i][j]));
+                particules[i][j] = particules[i][j] + vitesse[i][j];
+                //somVitesse += vitesse[i][j];
+            }
+
         }
         compteur++;
+        if (compteur % 100 == 0) {
+            resultat = xp[positionMinimumGlobal()];
+            std::cout << *this << std::endl;
+        }
     } while (compteur < cArret);
-    return 1;
+
+    resultat = xp[positionMinimumGlobal()];
+
 }
 
-template <typename FonctionObjetctif>
+template <typename F>
 
-double Essaim<FonctionObjetctif>::coefConstriction(double rho1, double rho2) {
+unsigned Essaim<F>::positionMinimumGlobal() {
+    unsigned best_position;
+    double best_val;
+    best_position = 0;
+    best_val = c[0];
+    for (unsigned i = 1; i < dimension; ++i) {
+        if (best_val >= c[i]) {
+            best_position = i;
+            best_val = c[i];
+        }
+    }
+    return best_position;
+}
+
+template <typename F>
+
+double Essaim<F>::coefConstriction(double rho1, double rho2) {
     double rho;
     rho = rho1 + rho2;
     return (1 - (1 / (rho)) + (sqrt(fabs(pow(rho, 2) - 4 * rho)) / 2));
 }
 
-template <typename FonctionObjetctif>
+template <typename F>
 
-bool Essaim<FonctionObjetctif>::majVoisins(const unsigned i) {
+bool Essaim<F>::majVoisins(unsigned i) {
     bool majEffectue{false};
 
     // Topologie anneau
@@ -185,9 +230,9 @@ bool Essaim<FonctionObjetctif>::majVoisins(const unsigned i) {
     return majEffectue;
 }
 
-template <typename FonctionObjetctif>
+template <typename F>
 
-void Essaim<FonctionObjetctif>::afficherParticules() {
+void Essaim<F>::afficherParticules() {
     for (unsigned i = 0; i < nbParticules; ++i) {
         std::cout << "(";
         for (unsigned j = 0; j < dimension; ++j) {
@@ -197,14 +242,16 @@ void Essaim<FonctionObjetctif>::afficherParticules() {
     }
 }
 
-template <typename FonctionObjetctif>
+template <typename F>
 
-void Essaim<FonctionObjetctif>::afficherMeilleurVoisin() {
+
+void Essaim<F>::afficherMeilleurVoisin() {
 }
 
 template <typename FonctionObjetctif>
 void Essaim<FonctionObjetctif>::testMajVoisins() {
     majVoisins(0);
+
     ASSERT(cv[0] < c[nbParticules - 1]);
     ASSERT(cv[0] < c[1]);
     for (unsigned i = 1; i < nbParticules - 1; ++i) {
@@ -217,5 +264,30 @@ void Essaim<FonctionObjetctif>::testMajVoisins() {
     ASSERT(cv[nbParticules - 1] < c[nbParticules - 1 - 1]);
 
 
+
 }
+
+template <typename FonctionObjetctif>
+void Essaim<FonctionObjetctif>::testInit() {
+    std::vector<double> min = obj.getMin();
+    std::vector<double> max = obj.getMax();
+    for (unsigned i = 0; i < nbParticules; ++i) {
+        for (unsigned j = 0; j < dimension; ++j) {
+            ASSERT(particules[i][j] < max && particules[i][j] >= min);
+            ASSERT(xp[i][j] == particules[i][j]);
+        }
+    }
+
+}
+
+template <typename F>
+std::ostream& operator<<(std::ostream& out, const Essaim<F>& e) {
+    out << "F(";
+    for (unsigned i = 0; i < e.dimension; ++i) {
+        out << e.resultat[i] << ",";
+    }
+    out << ") = " << e.obj.f(e.resultat) << std::endl;
+    return out;
+}
+
 #endif /* ESSAIM_H_ */

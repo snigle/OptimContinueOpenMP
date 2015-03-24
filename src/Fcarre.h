@@ -12,13 +12,13 @@
 
 class F_carre {
 public:
-	F_carre();
-	virtual ~F_carre();
+    F_carre();
+    virtual ~F_carre();
 
-	double f(std::vector<double> parametres);
+    double f(const std::vector<double>& parametres) const;
 
-	std::vector<double> getMin();
-	std::vector<double> getMax();
+    std::vector<double> getMin();
+    std::vector<double> getMax();
 };
 
 #endif /* SRC_FCARRE_H_ */

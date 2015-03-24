@@ -6,6 +6,4 @@
  */
 
 #include "Essaim.h"
-using namespace std;
-
 
