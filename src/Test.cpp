@@ -5,8 +5,10 @@
 #include "Fcarre.h"
 #include "Essaim.h"
 #include <iostream>
+
 #include"Fbohachevsky.h"
 #include"Fackley.h"
+
 using namespace std;
 
 void fCarre(){
@@ -14,6 +16,13 @@ void fCarre(){
 	vector<double> x(1);
 	x[0]=2;
 	ASSERT_EQUAL(4,f.f(x));
+}
+
+void majVoisin(){
+    F_carre f;
+	Essaim<F_carre> e(f, 0.02, 0.02, 5,1);
+        e.initVectors();
+        e.testMajVoisins();
 }
 
 void initEssaim(){
@@ -38,6 +47,7 @@ void algo(){
 void solveEssaim(){
 	Fackley f;
 	Essaim<Fackley> e(f, 0.02, 0.02, 1000,10000);
+
 	e.initVectors();
 	e.afficherParticules();
 
@@ -52,6 +62,11 @@ void runAllTests(int argc, char const *argv[]){
 
 	s.push_back(CUTE(init));
 	s.push_back(CUTE(fCarre));
+	s.push_back(CUTE(solveEssaim));
+
+        s.push_back(CUTE(initEssaim));
+        s.push_back(CUTE(majVoisin));
+        
 	s.push_back(CUTE(solveEssaim));
 
 	cute::xml_file_opener xmlfile(argc,argv);

@@ -1,0 +1,12 @@
+<<<<<<< HEAD
+<testsuites>
+	<testsuite name="AllTests" tests="5">
+		<testcase classname="AllTests" name="init"/>
+		<testcase classname="AllTests" name="fCarre"/>
+		<testcase classname="AllTests" name="initEssaim"/>
+		<testcase classname="AllTests" name="majVoisin"/>
+		<testcase classname="AllTests" name="solveEssaim"/>
+	</testsuite>
+</testsuites>
+=======
+>>>>>>> 5e97d50f47e8907045837e7c426955053b399fae
