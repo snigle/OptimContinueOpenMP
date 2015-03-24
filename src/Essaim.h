@@ -91,9 +91,7 @@ void Essaim<F>::initVectors() {
 	std::vector<double> max = obj.getMax();
 
 	if (min.size() != max.size()) {
-		std::cerr
-				<< "Les min et le max de la fonction objectif ne renvoie pas un vecteur de même taille"
-				<< std::endl;
+		throw "Les min et le max de la fonction objectif ne renvoie pas un vecteur de même taille";
 	}
 
 	//Préparation des rands uniform
