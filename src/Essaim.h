@@ -328,25 +328,17 @@ void Essaim<FonctionObjetctif>::testInit() {
             ASSERT(xp[i][j] == particules[i][j]);
         }
     }
+}
 
-    template <typename F >
-            std::ostream& operator<<(std::ostream& out, const Essaim<F>& e) {
-        out << "F(";
-        for (unsigned i = 0; i < e.dimension; ++i) {
-            out << e.resultat[i] << ",";
-        }
-        out << ") = " << e.obj.f(e.resultat) << std::endl;
-        return out;
-    }
 
-    template <typename F >
-            std::ostream& operator<<(std::ostream& out, const Essaim<F>& e) {
-        out << "F(";
-        for (unsigned i = 0; i < e.dimension; ++i) {
-            out << e.resultat[i] << ",";
-        }
-        out << ") = " << e.obj.f(e.resultat) << std::endl;
-        return out;
-    }
+template <typename F >
+std::ostream& operator<<(std::ostream& out, const Essaim<F>& e) {
+	out << "F(";
+	for (unsigned i = 0; i < e.dimension; ++i) {
+		out << e.resultat[i] << ",";
+	}
+	out << ") = " << e.obj.f(e.resultat) << std::endl;
+	return out;
+}
 
 #endif /* ESSAIM_H_ */
