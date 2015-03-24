@@ -5,6 +5,10 @@
 #include "Fcarre.h"
 #include "Essaim.h"
 #include <iostream>
+
+#include"Fbohachevsky.h"
+#include"Fackley.h"
+
 using namespace std;
 
 void fCarre(){
@@ -41,8 +45,9 @@ void algo(){
 }
 
 void solveEssaim(){
-	F_carre f;
-	Essaim<F_carre> e(f, 0.02, 0.02, 100,1000);
+	Fackley f;
+	Essaim<Fackley> e(f, 0.02, 0.02, 1000,10000);
+
 	e.initVectors();
 	e.afficherParticules();
 
@@ -57,6 +62,7 @@ void runAllTests(int argc, char const *argv[]){
 
 	s.push_back(CUTE(init));
 	s.push_back(CUTE(fCarre));
+	s.push_back(CUTE(solveEssaim));
 
         s.push_back(CUTE(initEssaim));
         s.push_back(CUTE(majVoisin));
