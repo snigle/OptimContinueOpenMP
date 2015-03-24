@@ -7,6 +7,7 @@
 
 #ifndef ESSAIM_H_
 #define ESSAIM_H_
+#include <omp.h>
 #include "Fcarre.h"
 #include <vector>
 #include <iostream>
@@ -139,74 +140,88 @@ template <typename F>
 
 void Essaim<F>::solve(){
 	double r1;
-//	double c1, c2, r2, rho1, rho2;
-	double Fi;
-	std::vector<double> min = obj.getMin();
-	std::vector<double> max = obj.getMax();
+	//	double c1, c2, r2, rho1, rho2;
+		double Fi;
+		std::vector<double> min = obj.getMin();
+		std::vector<double> max = obj.getMax();
 
-	std::vector<std::vector<double>>& particules = *pparticules;
-	std::vector<std::vector<double>>& xp = *pxp;
-	std::vector<std::vector<double>>& vitesse = *pvitesse;
-	std::vector<double>& c = *pc;
-	std::vector<std::vector<double>>& xv = *pxv;
-	std::vector<double>& cv = *pcv;
+		std::vector<std::vector<double>>& particules = *pparticules;
+		std::vector<std::vector<double>>& xp = *pxp;
+		std::vector<std::vector<double>>& vitesse = *pvitesse;
+		std::vector<double>& c = *pc;
+		std::vector<std::vector<double>>& xv = *pxv;
+		std::vector<double>& cv = *pcv;
 
-	double valResultat{c[0]};
-	posResultat = particules[0];
-	//double somVitesse = 0;
+		double valResultat{c[0]};
+		posResultat = particules[0];
+		//double somVitesse = 0;
 
-	unsigned compteur = 0;
-//	c1 = 3;
-//	c2 = 3;
-	do {
-//		std::cout<<"compteur: "<<compteur<<std::endl;
-//		this->afficherParticules();
-		for (unsigned i = 0; i < nbParticules; ++i) {
-			Fi = obj.f(particules[i]);
-			if (Fi < c[i]) {
-				c[i] = Fi;
-				xp[i] = particules[i];
-				if(valResultat>c[i]){
-					valResultat = c[i];
-					posResultat = xp[i];
+		unsigned compteur = 0;
+	//	c1 = 3;
+	//	c2 = 3;
+
+		do {
+	//		std::cout<<"compteur: "<<compteur<<std::endl;
+	//		this->afficherParticules();
+	#pragma omp parallel
+			{
+				double valResultatLocal{c[0]};
+				std::vector<double> posResultatLocal = particules[0];
+		#pragma omp for
+				for (unsigned i = 0; i < nbParticules; ++i) {
+					Fi = obj.f(particules[i]);
+					if (Fi < c[i]) {
+						c[i] = Fi;
+						xp[i] = particules[i];
+						if( valResultatLocal > c[i] ){//Local
+							valResultatLocal = c[i];
+							posResultatLocal = xp[i];
+						}
+					}
+					majVoisins(i);
+				}
+		#pragma omp critical
+				{
+					if(valResultatLocal < valResultat){
+						valResultat = valResultatLocal;
+						posResultat = posResultatLocal;
+					}
+				}
+
+
+		#pragma omp for
+				for (unsigned i = 0; i < nbParticules; ++i) {
+					//do{
+						r1 = rand()/(double)RAND_MAX;
+		//				r2 = rand()/(double)RAND_MAX;
+		//				rho1 = c1 * r1;
+		//				rho2 = c2 * r2;
+					//}while( rho1 + rho2 <= 4 );
+					for (unsigned j = 0; j < dimension; ++j) {
+		//				double var = vitesse[i][j];
+		//				double var2 = xp[i][j];
+		//				double var3 = xv[i][j];
+		//				double var4 = particules[i][j];
+						double var5 = ((rand()/(double)RAND_MAX)*(1.2-0.8)+0.8);
+						vitesse[i][j] = var5*(vitesse[i][j]) + r1*(xp[i][j] - particules[i][j]) + (1-r1)*( xv[i][j] - particules[i][j]);
+
+						particules[i][j] = particules[i][j] + vitesse[i][j];
+						if(particules[i][j] < obj.getMin()[j] || particules[i][j] > obj.getMax()[j] ) {
+							vitesse[i][j] = 0;
+						}
+						//somVitesse += vitesse[i][j];
+					}
 				}
 			}
-			majVoisins(i);
-		}
-		for (unsigned i = 0; i < nbParticules; ++i) {
-			//do{
-				r1 = rand()/(double)RAND_MAX;
-//				r2 = rand()/(double)RAND_MAX;
-//				rho1 = c1 * r1;
-//				rho2 = c2 * r2;
-			//}while( rho1 + rho2 <= 4 );
-			for (unsigned j = 0; j < dimension; ++j) {
-//				double var = vitesse[i][j];
-//				double var2 = xp[i][j];
-//				double var3 = xv[i][j];
-//				double var4 = particules[i][j];
-				double var5 = ((rand()/(double)RAND_MAX)*(1.2-0.8)+0.8);
-				vitesse[i][j] = var5*(vitesse[i][j]) + r1*(xp[i][j] - particules[i][j]) + (1-r1)*( xv[i][j] - particules[i][j]);
+			compteur ++;
+	//		if( compteur%100==0 ){
+	//			//this->afficherParticules();
+	//			posResultat = xp[positionMinimumGlobal()];
+	//			std::cout<<*this<<std::endl;
+	//		}
+		} while (compteur < cArret );
 
-				particules[i][j] = particules[i][j] + vitesse[i][j];
-				if(particules[i][j] < obj.getMin()[j] || particules[i][j] > obj.getMax()[j] ) {
-					vitesse[i][j] = 0;
-				}
-				//somVitesse += vitesse[i][j];
-			}
-
-
-		}
-		compteur ++;
-//		if( compteur%100==0 ){
-//			//this->afficherParticules();
-//			posResultat = xp[positionMinimumGlobal()];
-//			std::cout<<*this<<std::endl;
-//		}
-	} while (compteur < cArret );
-
-	//posResultat = xp[positionMinimumGlobal()];
-
+		//posResultat = xp[positionMinimumGlobal()];
 
 }
 
@@ -247,28 +262,22 @@ bool Essaim<F>::majVoisins(unsigned i) {
 	std::vector<double>& c = *pc;
 	std::vector<std::vector<double>>& xv = *pxv;
 	std::vector<double>& cv = *pcv;
-	double F1;
-	double F2;
 
 	// Topologie anneau
 	unsigned v1 { i - 1 };
 	unsigned v2 { i + 1 };
-
-	F1 = obj.f(particules[v1]);
-	F2 = obj.f(particules[v2]);
-
 	if (i == 0)
 		v1 = nbParticules - 1;
 	if (v2 == nbParticules)
 		v2 = 0;
 
-	if (F1 < cv[i]) {
-		cv[i] = F1;
+	if (obj.f(particules[v1]) < cv[i]) {
+		cv[i] = obj.f(particules[v1]);
 		xv[i] = particules[v1];
 		majEffectue = true;
 	}
-	if (F2 < cv[i]) {
-		cv[i] = F2;
+	if (obj.f(particules[v2]) < cv[i]) {
+		cv[i] = obj.f(particules[v2]);
 		xv[i] = particules[v2];
 		majEffectue = true;
 	}
