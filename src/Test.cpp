@@ -39,6 +39,7 @@ void fCarre(){
         Essaim<F_carre> e(f,0,0,1000,1000);
         e.solve();
         std::vector<double> res = e.getResultat();
+        cout<<res[0]<<endl;
 }
 
 void init() {
@@ -56,8 +57,7 @@ void algo(){
 
 void solveEssaim(){
 	Fackley f;
-	Essaim<Fackley> e(f, 0.02, 0.02, 1000,10000);
-
+	Essaim<Fackley> e(f, 0.02, 0.02, 1000,1000);
 	e.initVectors();
 	e.afficherParticules();
 
