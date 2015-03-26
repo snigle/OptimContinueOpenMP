@@ -11,28 +11,32 @@
 
 using namespace std;
 
+void EssaimMajVoisin(){
+    Fackley f;
+	Essaim<Fackley> e(f, 0.02, 0.02, 100,10);
+        e.testMajVoisins();
+}
+
+void EssaimInitVectors(){
+    Fbohachevsky f;
+	Essaim<Fbohachevsky> e(f, 0,02, 100, 10);
+        e.testMajVoisins();
+}
+
 void fCarre(){
 	F_carre f;
 	vector<double> x(1);
 	x[0]=2;
 	ASSERT_EQUAL(4,f.f(x));
+        
+        Essaim<F_carre> e(f,0,0,1000,1000);
+        e.solve();
+        std::vector<double> res = e.getResultat();
 }
 
-void majVoisin(){
-    F_carre f;
-	Essaim<F_carre> e(f, 0.02, 0.02, 5,1);
-        e.initVectors();
-        e.testMajVoisins();
-}
-
-void initEssaim(){
-	F_carre f;
-	Essaim<F_carre> e(f, 0.02, 0.02, 5,1);
-	e.initVectors();
-	e.afficherParticules();
 
 
-}
+
 
 void init() {
 	ASSERTM("start writing tests",true);
@@ -64,8 +68,8 @@ void runAllTests(int argc, char const *argv[]){
 	s.push_back(CUTE(fCarre));
 	s.push_back(CUTE(solveEssaim));
 
-        s.push_back(CUTE(initEssaim));
-        s.push_back(CUTE(majVoisin));
+        s.push_back(CUTE(EssaimInitVectors));
+        s.push_back(CUTE(EssaimMajVoisin));
         
 	s.push_back(CUTE(solveEssaim));
 

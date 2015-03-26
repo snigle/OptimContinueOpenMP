@@ -66,6 +66,8 @@ public:
     void testMajVoisins();
     void testInit();
 
+    std::vector<double> getResultat();
+
     template<typename U>
     friend std::ostream& operator<<(std::ostream& out, const Essaim<U>& e);
 };
@@ -85,6 +87,7 @@ std::vector<double>(_nbParticules)), xv(
 std::vector<std::vector<double>>(_nbParticules)), vitesse(
 std::vector<std::vector<double>>(_nbParticules)),
 resultat(std::vector<double>(_obj.getMax().size())) {
+    this->initVectors();
 }
 
 template <typename F>
@@ -93,45 +96,49 @@ Essaim<F>::~Essaim() {
 }
 
 template <typename F>
+std::vector<double> Essaim<F>::getResultat() {
+    return resultat;
+}
 
+template <typename F>
 void Essaim<F>::initVectors() {
 
-	std::vector<double> min = obj.getMin();
-	std::vector<double> max = obj.getMax();
+    std::vector<double> min = obj.getMin();
+    std::vector<double> max = obj.getMax();
 
-	if (min.size() != max.size()) {
-		throw "Les min et le max de la fonction objectif ne renvoie pas un vecteur de même taille";
-	}
+    if (min.size() != max.size()) {
+        throw "Les min et le max de la fonction objectif ne renvoie pas un vecteur de même taille";
+    }
 
-	//Préparation des rands uniform
-	std::default_random_engine generator { };
-	std::uniform_real_distribution<double> distribution(0, 1);
-	std::vector<std::uniform_real_distribution<double>> distributionParticule(
-			dimension);
-	for (unsigned j = 0; j < dimension; ++j) {
-		distributionParticule[j] = std::uniform_real_distribution<double>(min[j],max[j]);
-	}
+    //Préparation des rands uniform
+    std::default_random_engine generator{};
+    std::uniform_real_distribution<double> distribution(0, 1);
+    std::vector<std::uniform_real_distribution<double>> distributionParticule(
+            dimension);
+    for (unsigned j = 0; j < dimension; ++j) {
+        distributionParticule[j] = std::uniform_real_distribution<double>(min[j], max[j]);
+    }
 
-	for (unsigned i = 0; i < nbParticules; ++i) {
-//		particules[i] = std::vector<double>(min.size());
-//		vitesse[i] = std::vector<double>(min.size());
-		for (unsigned j = 0; j < min.size(); ++j) {
-			double tmp = distributionParticule[j](generator);
-			particules[i].push_back(tmp);
-			xp[i].push_back(tmp);
-			tmp = distribution(generator);
-			vitesse[i].push_back(tmp);
-		}
-		c[i] = obj.f(particules[i]);
-//c[i] = std::numeric_limits<double>::max();
-//		cv[i] = c[(i+1)%nbParticules];
-	}
+    for (unsigned i = 0; i < nbParticules; ++i) {
+        //		particules[i] = std::vector<double>(min.size());
+        //		vitesse[i] = std::vector<double>(min.size());
+        for (unsigned j = 0; j < min.size(); ++j) {
+            double tmp = distributionParticule[j](generator);
+            particules[i].push_back(tmp);
+            xp[i].push_back(tmp);
+            tmp = distribution(generator);
+            vitesse[i].push_back(tmp);
+        }
+        c[i] = obj.f(particules[i]);
+        //c[i] = std::numeric_limits<double>::max();
+        //		cv[i] = c[(i+1)%nbParticules];
+    }
 
-	for (unsigned i = 0; i < nbParticules; ++i) {
-		xv[i] = particules[(i+1)%nbParticules];
-		cv[i] = c[(i+1)%nbParticules];
-		majVoisins(i);
-	}
+    for (unsigned i = 0; i < nbParticules; ++i) {
+        xv[i] = particules[(i + 1) % nbParticules];
+        cv[i] = c[(i + 1) % nbParticules];
+        majVoisins(i);
+    }
 
 }
 
@@ -322,23 +329,25 @@ template <typename FonctionObjetctif>
 void Essaim<FonctionObjetctif>::testInit() {
     std::vector<double> min = obj.getMin();
     std::vector<double> max = obj.getMax();
+    ASSERT(vitesse.size() == nbParticules);
+    ASSERT(particules.size() == nbParticules);
     for (unsigned i = 0; i < nbParticules; ++i) {
+        ASSERT(vitesse[i].size() == dimension);
         for (unsigned j = 0; j < dimension; ++j) {
-            ASSERT(particules[i][j] < max && particules[i][j] >= min);
+            ASSERT(particules[i][j] < max[j] && particules[i][j] >= min[j]);
             ASSERT(xp[i][j] == particules[i][j]);
         }
     }
 }
 
-
 template <typename F >
 std::ostream& operator<<(std::ostream& out, const Essaim<F>& e) {
-	out << "F(";
-	for (unsigned i = 0; i < e.dimension; ++i) {
-		out << e.resultat[i] << ",";
-	}
-	out << ") = " << e.obj.f(e.resultat) << std::endl;
-	return out;
+    out << "F(";
+    for (unsigned i = 0; i < e.dimension; ++i) {
+        out << e.resultat[i] << ",";
+    }
+    out << ") = " << e.obj.f(e.resultat) << std::endl;
+    return out;
 }
 
 #endif /* ESSAIM_H_ */
