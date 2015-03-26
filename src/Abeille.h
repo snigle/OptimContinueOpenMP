@@ -26,24 +26,47 @@ private:
     unsigned maxIterations;
     unsigned nbFleurs;
     std::default_random_engine generator;
-	std::uniform_real_distribution<double> distribution/*(0, 1)*/;
-	std::vector<std::uniform_real_distribution<double>> distributionParticule/*(dimension)*/;
-	unsigned dimension;
+    std::uniform_real_distribution<double> distribution/*(0, 1)*/;
+    std::vector<std::uniform_real_distribution<double>> distributionParticule/*(dimension)*/;
+    unsigned dimension;
 
     double fitness()const;
     void initVectors();
     void majFitnesses();
+    std::vector<double> genererFleur();
 public:
-    Abeille(F _obj, unsigned _nbFleurs,unsigned _max);
+    Abeille(F _obj, unsigned _nbFleurs, unsigned _max);
 
     void solve();
     void testInitFleurs()const;
 };
 
 template <typename F>
-void Abeille<F>::majFitnesses() {
-    for (unsigned i = 0; i < nbFleurs; ++i) {
+std::vector<double> Abeille<F>::genererFleur() {
+    std::vector<double> fleur(dimension);
 
+    for (unsigned j = 0; j < dimension; ++j) {
+        double tmp = distributionParticule[j](generator);
+        fleur[j] = tmp;
+    }
+    return fleur;
+}
+
+template <typename F>
+void Abeille<F>::majFitnesses() {
+    std::vector<std::vector<double>>&fleurs = *pFleurs;
+    std::vector<double>& fitnesses = *pFitnesses;
+    std::vector<unsigned> iterations = *pIterations;
+
+
+    for (unsigned i = 0; i < nbFleurs; ++i) {
+        if (iterations[i] > maxIterations) {
+            iterations[i] = 0;
+            fleurs[i] = genererFleur();
+        }
+        std::vector<double> voisin = getVoisin(i);
+        fitnesses[i] = fitness(voisin);
+        ++iterations[i];
     }
 }
 
@@ -77,35 +100,41 @@ void Abeille<F>::initVectors() {
     }
 
     //Initialisation des fleurs.
-    std::cout<<"nombre de fleurs :"<<nbFleurs<<std::endl;
-    std::cout<<"dimension :"<<min.size()<<std::endl;
+    std::cout << "nombre de fleurs :" << nbFleurs << std::endl;
+    std::cout << "dimension :" << min.size() << std::endl;
     for (unsigned i = 0; i < nbFleurs; ++i) {
-    	std::cout<<"la"<<std::endl;
-		for (unsigned j = 0; j < dimension; ++j) {
-			double tmp = distributionParticule[j](generator);
-			std::cout<<tmp<<std::endl;
-			fleurs[i].push_back(tmp);
-			std::cout.flush();
-		}
-	}
+        std::cout << "la" << std::endl;
+        for (unsigned j = 0; j < dimension; ++j) {
+            double tmp = distributionParticule[j](generator);
+            std::cout << tmp << std::endl;
+            fleurs[i].push_back(tmp);
+            std::cout.flush();
+        }
+    }
 }
 
 template<typename F>
-Abeille<F>::Abeille(F _obj, unsigned _nbFleurs,unsigned _max) :
-pFleurs(new std::vector<std::vector<double> > { _nbFleurs })
-, pFitnesses(new std::vector<double> { _nbFleurs })
-,pIterations(new std::vector<unsigned>{_nbFleurs}), obj(_obj)
-,maxIterations { _max }
+Abeille<F>::Abeille(F _obj, unsigned _nbFleurs, unsigned _max) :
+pFleurs(new std::vector<std::vector<double> >{_nbFleurs})
+, pFitnesses(new std::vector<double>{_nbFleurs})
+, pIterations(new std::vector<unsigned>{_nbFleurs}), obj(_obj)
+, maxIterations {
+    _max
+}
 , nbFleurs{_nbFleurs}
-,generator()
-,distribution(0,1)
-,distributionParticule(dimension)
-,dimension {(unsigned)_obj.getMax().size()}
+
+, generator()
+, distribution(0, 1)
+, distributionParticule(dimension)
+, dimension {
+    (unsigned) _obj.getMax().size()
+}
 {
-	for (unsigned i = 0; i < dimension; ++i) {
-		distributionParticule[i] = std::uniform_real_distribution<double>(obj.getMin()[i], obj.getMax()[i]);
-	}
-	initVectors();
+
+    for (unsigned i = 0; i < dimension; ++i) {
+        distributionParticule[i] = std::uniform_real_distribution<double>(obj.getMin()[i], obj.getMax()[i]);
+    }
+    initVectors();
 
     //	fleurs=*pFleurs;
     //	fitnesses=*pFitnesses;
@@ -118,10 +147,10 @@ void Abeille<F>::solve() {
 
 template<typename F>
 void Abeille<F>::testInitFleurs() const {
-	std::vector<double> min = obj.getMin();
-	std::vector<double> max = obj.getMax();
-	std::vector<std::vector<double>>& fleurs=*pFleurs;
-	ASSERT(fleurs.size() == nbFleurs);
+    std::vector<double> min = obj.getMin();
+    std::vector<double> max = obj.getMax();
+    std::vector<std::vector<double>>&fleurs = *pFleurs;
+    ASSERT(fleurs.size() == nbFleurs);
 }
 
 
