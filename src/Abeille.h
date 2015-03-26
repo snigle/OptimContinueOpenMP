@@ -23,10 +23,11 @@ private:
     std::unique_ptr<std::vector<int>> pIterations;
     F obj;
     unsigned nbFleurs;
-    double fitness()const;
+    double fitness(std::vector<double>)const;
     unsigned dimension;
     void initVectors();
     void majFitnesses();
+    std::vector<double> getVoisin(unsigned i);
 public:
     Abeille(F _obj, unsigned _nbFleurs, unsigned dim);
 
@@ -41,7 +42,29 @@ void Abeille<F>::majFitnesses() {
 }
 
 template<typename F>
-double Abeille<F>::fitness() const {
+double Abeille<F>::fitness(std::vector<double> fleur) const {
+	double valFleur = obj.f(fleur);
+
+	if(valFleur >= 0) return (1/(valFleur+1));
+	else return (1+fabs(valFleur));
+
+}
+
+template<typename F>
+std::vector<double> Abeille<F>::getVoisin(unsigned i) {
+	std::vector<std::vector<double>> &fleurs = *pFleurs;
+
+	unsigned aleaDimension;
+
+	std::vector<double> fleur = genererFleur();
+	std::vector<double> voisine = fleurs[i];
+	aleaDimension = (unsigned) (rand()/(double)RAND_MAX)*dimension;
+
+	voisine[aleaDimension] = voisine[aleaDimension]
+					 + ((rand()/(double)RAND_MAX)*2-1)
+					 * ( voisine[aleaDimension] - fleur[aleaDimension] );
+
+
     return 0.0;
 }
 
