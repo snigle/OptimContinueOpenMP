@@ -80,26 +80,27 @@ void Abeille<F>::initVectors() {
     std::cout<<"nombre de fleurs :"<<nbFleurs<<std::endl;
     std::cout<<"dimension :"<<min.size()<<std::endl;
     for (unsigned i = 0; i < nbFleurs; ++i) {
-
-		for (unsigned j = 0; j < min.size(); ++j) {
+    	std::cout<<"la"<<std::endl;
+		for (unsigned j = 0; j < dimension; ++j) {
 			double tmp = distributionParticule[j](generator);
 			std::cout<<tmp<<std::endl;
 			fleurs[i].push_back(tmp);
+			std::cout.flush();
 		}
 	}
 }
 
 template<typename F>
 Abeille<F>::Abeille(F _obj, unsigned _nbFleurs,unsigned _max) :
-pFleurs(new std::vector<std::vector<double>>{})
-,pFitnesses(new std::vector<double>{})
-,pIterations(new std::vector<unsigned>{}), obj(_obj)
+pFleurs(new std::vector<std::vector<double> > { _nbFleurs })
+, pFitnesses(new std::vector<double> { _nbFleurs })
+,pIterations(new std::vector<unsigned>{_nbFleurs}), obj(_obj)
 ,maxIterations { _max }
 , nbFleurs{_nbFleurs}
 ,generator()
 ,distribution(0,1)
 ,distributionParticule(dimension)
-,dimension {_obj.getMax().size()}
+,dimension {(unsigned)_obj.getMax().size()}
 {
 	for (unsigned i = 0; i < dimension; ++i) {
 		distributionParticule[i] = std::uniform_real_distribution<double>(obj.getMin()[i], obj.getMax()[i]);
