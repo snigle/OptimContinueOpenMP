@@ -13,6 +13,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <random>
+#include "../cute/cute_base.h"
 
 template <typename F>
 class Abeille {
@@ -20,17 +21,23 @@ private:
 
     std::unique_ptr<std::vector<std::vector<double>>> pFleurs;
     std::unique_ptr<std::vector<double>> pFitnesses;
-    std::unique_ptr<std::vector<int>> pIterations;
+    std::unique_ptr<std::vector<unsigned>> pIterations;
     F obj;
+    unsigned maxIterations;
     unsigned nbFleurs;
+    std::default_random_engine generator;
+	std::uniform_real_distribution<double> distribution/*(0, 1)*/;
+	std::vector<std::uniform_real_distribution<double>> distributionParticule/*(dimension)*/;
+	unsigned dimension;
+
     double fitness()const;
-    unsigned dimension;
     void initVectors();
     void majFitnesses();
 public:
-    Abeille(F _obj, unsigned _nbFleurs, unsigned dim);
+    Abeille(F _obj, unsigned _nbFleurs,unsigned _max);
 
     void solve();
+    void testInitFleurs()const;
 };
 
 template <typename F>
@@ -49,7 +56,7 @@ template<typename F>
 void Abeille<F>::initVectors() {
     std::vector<double>& fitnesses = *pFitnesses;
     std::vector<std::vector<double>>&fleurs = *pFleurs;
-    std::vector<int>& iterations = *pIterations;
+    std::vector<unsigned>& iterations = *pIterations;
 
 
     std::vector<double> min = obj.getMin();
@@ -59,9 +66,7 @@ void Abeille<F>::initVectors() {
         throw "Les min et le max de la fonction objectif ne renvoie pas un vecteur de même taille";
     }
     //Préparation des randoms uniformes.
-    std::default_random_engine generator{};
-    std::uniform_real_distribution<double> distribution(0, 1);
-    std::vector<std::uniform_real_distribution<double>> distributionParticule(dimension);
+
 
 
     //Initialisation des fleurs et du nombre d'itérations par abeille.
@@ -70,30 +75,37 @@ void Abeille<F>::initVectors() {
         iterations.push_back(0);
 
     }
-    for (unsigned i = 0; i < dimension; ++i) {
-        distributionParticule[i] = std::uniform_real_distribution<double>(min[i], max[i]);
-    }
-    //Initialisation des fleurs.
-    for (unsigned i = 0; i < nbFleurs; ++i) {
-        for (unsigned j = 0; j < min.size(); ++j) {
-            double tmp = distributionParticule[j](generator);
-            fleurs[i].push_back(tmp);
-        }
-    }
 
+    //Initialisation des fleurs.
+    std::cout<<"nombre de fleurs :"<<nbFleurs<<std::endl;
+    std::cout<<"dimension :"<<min.size()<<std::endl;
+    for (unsigned i = 0; i < nbFleurs; ++i) {
+
+		for (unsigned j = 0; j < min.size(); ++j) {
+			double tmp = distributionParticule[j](generator);
+			std::cout<<tmp<<std::endl;
+			fleurs[i].push_back(tmp);
+		}
+	}
 }
 
 template<typename F>
-Abeille<F>::Abeille(F _obj, unsigned _nbFleurs, unsigned _dim) : pFleurs(new std::vector<std::vector<double>>
+Abeille<F>::Abeille(F _obj, unsigned _nbFleurs,unsigned _max) :
+pFleurs(new std::vector<std::vector<double>>{})
+,pFitnesses(new std::vector<double>{})
+,pIterations(new std::vector<unsigned>{}), obj(_obj)
+,maxIterations { _max }
+, nbFleurs{_nbFleurs}
+,dimension {_obj.getMax().size()}
+,generator()
+,distribution(0,1)
+,distributionParticule(dimension)
 {
-})
-,
-pFitnesses(new std::vector<double>{}), obj(_obj), dimension {
-    _dim
-}, nbFleurs{_nbFleurs}
-,
-pIterations(new std::vector<int>{}) {
-    initVectors();
+	for (unsigned i = 0; i < dimension; ++i) {
+		distributionParticule[i] = std::uniform_real_distribution<double>(obj.getMin()[i], obj.getMax()[i]);
+	}
+	initVectors();
+
     //	fleurs=*pFleurs;
     //	fitnesses=*pFitnesses;
     //	iterations=*pIterations;
@@ -101,6 +113,14 @@ pIterations(new std::vector<int>{}) {
 
 template<typename F>
 void Abeille<F>::solve() {
+}
+
+template<typename F>
+void Abeille<F>::testInitFleurs() const {
+	std::vector<double> min = obj.getMin();
+	std::vector<double> max = obj.getMax();
+	std::vector<std::vector<double>>& fleurs=*pFleurs;
+	ASSERT(fleurs.size() == nbFleurs);
 }
 
 #endif /* ABEILLE_H_ */
