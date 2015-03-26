@@ -8,6 +8,7 @@
 
 #include"Fbohachevsky.h"
 #include"Fackley.h"
+#include "Abeille.h"
 
 using namespace std;
 
@@ -45,7 +46,8 @@ void init() {
 //Test sur la classe Algorithme.
 
 void algo(){
-
+    F_carre f;
+    Abeille<F_carre> a(f,10,12);
 }
 
 void solveEssaim(){
