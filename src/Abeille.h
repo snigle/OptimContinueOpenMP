@@ -96,10 +96,10 @@ pFleurs(new std::vector<std::vector<double>>{})
 ,pIterations(new std::vector<unsigned>{}), obj(_obj)
 ,maxIterations { _max }
 , nbFleurs{_nbFleurs}
-,dimension {_obj.getMax().size()}
 ,generator()
 ,distribution(0,1)
 ,distributionParticule(dimension)
+,dimension {_obj.getMax().size()}
 {
 	for (unsigned i = 0; i < dimension; ++i) {
 		distributionParticule[i] = std::uniform_real_distribution<double>(obj.getMin()[i], obj.getMax()[i]);
