@@ -27,6 +27,7 @@ private:
     unsigned dimension;
     void initVectors();
     void majFitnesses();
+    std::vector<double> genererFleur();
 public:
     Abeille(F _obj, unsigned _nbFleurs, unsigned dim);
 
@@ -34,9 +35,31 @@ public:
 };
 
 template <typename F>
-void Abeille<F>::majFitnesses() {
-    for (unsigned i = 0; i < nbFleurs; ++i) {
+std::vector<double> Abeille<F>::initialiserFleur() {
+    std::vector<double> fleur(dimension);
 
+    for (unsigned j = 0; j < dimension; ++j) {
+        double tmp = distributionParticule[j](generator);
+        fleur[j] = tmp;
+    }
+    return fleur;
+}
+
+template <typename F>
+void Abeille<F>::majFitnesses() {
+    std::vector<std::vector<double>>&fleurs = *pFleurs;
+    std::vector<double>& fitnesses = *pFitnesses;
+    std::vector<unsigned> iterations = *pIterations;
+
+
+    for (unsigned i = 0; i < nbFleurs; ++i) {
+        if (iterations[i] > maxIteration) {
+            iterations[i] = 0;
+            initialiserFleur(i);
+        }
+        std::vector<double> voisin = getVoisin(i);
+        fitnesses[i] = fitness(voisin);
+        ++iterations[i];
     }
 }
 
@@ -87,10 +110,12 @@ template<typename F>
 Abeille<F>::Abeille(F _obj, unsigned _nbFleurs, unsigned _dim) : pFleurs(new std::vector<std::vector<double>>
 {
 })
+
 ,
 pFitnesses(new std::vector<double>{}), obj(_obj), dimension {
     _dim
 }, nbFleurs{_nbFleurs}
+
 ,
 pIterations(new std::vector<int>{}) {
     initVectors();
