@@ -17,12 +17,9 @@
 template <typename F>
 class Abeille {
 private:
-	std::unique_ptr<std::vector<double>> pFleurs;
+	std::unique_ptr<std::vector<std::vector<double>>> pFleurs;
 	std::unique_ptr<std::vector<double>> pFitnesses;
 	std::unique_ptr<std::vector<int>> pIterations;
-	std::vector<double>& fleurs;
-	std::vector<double>& fitnesses;
-	std::vector<int>& iterations;
 	F obj;
 	unsigned nbFleurs;
 	double fitness()const;
@@ -36,14 +33,16 @@ public :
 };
 
 template<typename F>
-inline double Abeille<F>::fitness() const {
+ double Abeille<F>::fitness() const {
+	return 0.0;
 }
 
 template<typename F>
-inline void Abeille<F>::initVectors() {
+ void Abeille<F>::initVectors() {
+		std::vector<double>& fitnesses = *pFitnesses;
+		std::vector<std::vector<double>>& fleurs=*pFleurs;
+		std::vector<int>& iterations=*pIterations;
 
-	for(unsigned i=0;i<nbFleurs;++i){
-		iterations.push_back(0);
 		std::vector<double> min = obj.getMin();
 		std::vector<double> max = obj.getMax();
 
@@ -55,21 +54,36 @@ inline void Abeille<F>::initVectors() {
 		std::uniform_real_distribution<double> distribution(0, 1);
 		std::vector<std::uniform_real_distribution<double>> distributionParticule(dimension);
 
-	}
+		//Initialisation des fleurs et du nombre d'itérations par abeille.
+		for(unsigned i=0;i<nbFleurs;++i){
+			fitnesses.push_back(0);
+			iterations.push_back(0);
+
+		}
+		for (unsigned i = 0; i < dimension; ++i) {
+			distributionParticule[i] = std::uniform_real_distribution<double>(min[i],max[i]);
+		}
+		//Initialisation des fleurs.
+		for (unsigned i = 0; i < nbFleurs; ++i) {
+			for (unsigned j = 0; j < min.size(); ++j) {
+				double tmp = distributionParticule[j](generator);
+				fleurs[i].push_back(tmp);
+			}
+		}
+
 }
 
 template<typename F>
-Abeille<F>::Abeille(F _obj, unsigned _nbFleurs,unsigned _dim):pFleurs(new std::vector<double>{}),
+Abeille<F>::Abeille(F _obj, unsigned _nbFleurs,unsigned _dim):pFleurs(new std::vector<std::vector<double>>{}),
 pFitnesses(new std::vector<double> { }), obj(_obj), dimension { _dim }, nbFleurs {_nbFleurs },
-pIterations(new std::vector<int> {}) {
-	fleurs=*pFleurs;
-	fitnesses=*pFitnesses;
-	iterations=*pIterations;
-
+pIterations(new std::vector<int> {}){
+	initVectors();
+//	fleurs=*pFleurs;
+//	fitnesses=*pFitnesses;
+//	iterations=*pIterations;
 
 
 }
-
 
 template<typename F>
 inline void Abeille<F>::solve() {
