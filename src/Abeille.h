@@ -25,14 +25,17 @@ private:
     F obj;
     unsigned maxIterations;
     unsigned nbFleurs;
+
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution/*(0, 1)*/;
     std::vector<std::uniform_real_distribution<double>> distributionParticule/*(dimension)*/;
+
     unsigned dimension;
 
-    double fitness()const;
+	double fitness(std::vector<double>)const;
     void initVectors();
     void majFitnesses();
+    std::vector<double> getVoisin(unsigned i);
     std::vector<double> genererFleur();
 public:
     Abeille(F _obj, unsigned _nbFleurs, unsigned _max);
@@ -71,7 +74,29 @@ void Abeille<F>::majFitnesses() {
 }
 
 template<typename F>
-double Abeille<F>::fitness() const {
+double Abeille<F>::fitness(std::vector<double> fleur) const {
+	double valFleur = obj.f(fleur);
+
+	if(valFleur >= 0) return (1/(valFleur+1));
+	else return (1+fabs(valFleur));
+
+}
+
+template<typename F>
+std::vector<double> Abeille<F>::getVoisin(unsigned i) {
+	std::vector<std::vector<double>> &fleurs = *pFleurs;
+
+	unsigned aleaDimension;
+
+	std::vector<double> fleur = genererFleur();
+	std::vector<double> voisine = fleurs[i];
+	aleaDimension = (unsigned) (rand()/(double)RAND_MAX)*dimension;
+
+	voisine[aleaDimension] = voisine[aleaDimension]
+					 + ((rand()/(double)RAND_MAX)*2-1)
+					 * ( voisine[aleaDimension] - fleur[aleaDimension] );
+
+
     return 0.0;
 }
 
@@ -100,16 +125,9 @@ void Abeille<F>::initVectors() {
     }
 
     //Initialisation des fleurs.
-    std::cout << "nombre de fleurs :" << nbFleurs << std::endl;
-    std::cout << "dimension :" << min.size() << std::endl;
+
     for (unsigned i = 0; i < nbFleurs; ++i) {
-        std::cout << "la" << std::endl;
-        for (unsigned j = 0; j < dimension; ++j) {
-            double tmp = distributionParticule[j](generator);
-            std::cout << tmp << std::endl;
-            fleurs[i].push_back(tmp);
-            std::cout.flush();
-        }
+       fleurs[i] = genererFleur();
     }
 }
 
@@ -121,14 +139,14 @@ pFleurs(new std::vector<std::vector<double> >{_nbFleurs})
 , maxIterations {
     _max
 }
-, nbFleurs{_nbFleurs}
+, nbFleurs(_nbFleurs)
 
 , generator()
 , distribution(0, 1)
-, distributionParticule(dimension)
-, dimension {
-    (unsigned) _obj.getMax().size()
-}
+, distributionParticule(_obj.getMax().size())
+, dimension (
+     _obj.getMax().size()
+)
 {
 
     for (unsigned i = 0; i < dimension; ++i) {
