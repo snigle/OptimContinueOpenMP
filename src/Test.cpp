@@ -15,7 +15,8 @@ using namespace std;
 void testAbeill()
 {
 	F_carre f { };
-	Abeille<F_carre> abeille(f,10,12);
+	Abeille<F_carre> abeille(f,10,10000);
+	abeille.testInitFleurs();
 }
 void EssaimMajVoisin(){
     Fackley f;
@@ -26,7 +27,7 @@ void EssaimMajVoisin(){
 void EssaimInitVectors(){
     Fbohachevsky f;
 	Essaim<Fbohachevsky> e(f, 0,02, 100, 10);
-        e.testMajVoisins();
+	e.testMajVoisins();
 }
 
 void fCarre(){
@@ -41,10 +42,6 @@ void fCarre(){
         cout<<res[0]<<endl;
 }
 
-
-
-
-
 void init() {
 	ASSERTM("start writing tests",true);
 }
@@ -53,7 +50,9 @@ void init() {
 
 void algo(){
     F_carre f;
-    Abeille<F_carre> a(f,10,12);
+    Abeille<F_carre> a(f,10,10000);
+    ASSERTM("start writing tests",true);
+
 }
 
 void solveEssaim(){
@@ -71,15 +70,17 @@ void solveEssaim(){
 void runAllTests(int argc, char const *argv[]){
 	cute::suite s{};
 
-	s.push_back(CUTE(init));
-	s.push_back(CUTE(fCarre));
-	s.push_back(CUTE(solveEssaim));
+//	s.push_back(CUTE(init));
+//	s.push_back(CUTE(fCarre));
+//	s.push_back(CUTE(solveEssaim));
+//
+//        s.push_back(CUTE(EssaimInitVectors));
+//        s.push_back(CUTE(EssaimMajVoisin));
+//
+//	s.push_back(CUTE(solveEssaim));
+//	s.push_back(CUTE(algo));
 
-        s.push_back(CUTE(EssaimInitVectors));
-        s.push_back(CUTE(EssaimMajVoisin));
-        
-	s.push_back(CUTE(solveEssaim));
-
+	s.push_back(CUTE(testAbeill));
 	cute::xml_file_opener xmlfile(argc,argv);
 	cute::xml_listener<cute::ide_listener<> >  lis(xmlfile.out);
 	cute::makeRunner(lis,argc,argv)(s, "AllTests");

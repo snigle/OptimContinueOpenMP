@@ -1,18 +1,5 @@
 <testsuites>
-	<testsuite name="AllTests" tests="6">
-		<testcase classname="AllTests" name="init"/>
-		<testcase classname="AllTests" name="fCarre"/>
-		<testcase classname="AllTests" name="solveEssaim"/>
-		<testcase classname="AllTests" name="EssaimInitVectors">
-			<failure message="../src/Essaim.h:403 testMajVoisins: cv[0] &lt; c[nbParticules - 1]">
-testMajVoisins: cv[0] &lt; c[nbParticules - 1]
-			</failure>
-		</testcase>
-		<testcase classname="AllTests" name="EssaimMajVoisin">
-			<failure message="../src/Essaim.h:404 testMajVoisins: cv[0] &lt; c[1]">
-testMajVoisins: cv[0] &lt; c[1]
-			</failure>
-		</testcase>
-		<testcase classname="AllTests" name="solveEssaim"/>
+	<testsuite name="AllTests" tests="1">
+		<testcase classname="AllTests" name="testAbeill"/>
 	</testsuite>
 </testsuites>

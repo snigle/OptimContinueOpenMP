@@ -31,19 +31,6 @@ private:
 
     unsigned dimension;
 
-    std::vector<std::vector<double>> particules;
-    //Cout minimal par particules
-    std::vector<double> c;
-    //Position du cout minimal
-    std::vector<std::vector<double>> xp;
-    //Cout minimal du voisinage d'une particule
-    std::vector<double> cv;
-    //Position du cout minimal du voisinage
-    std::vector<std::vector<double>> xv;
-    //Vitesse des particules
-    std::vector<std::vector<double>> vitesse;
-
-
 	std::unique_ptr<std::vector<std::vector<double>>> pparticules;
 	//Cout minimal par particules
 	std::unique_ptr<std::vector<double>> pc;
