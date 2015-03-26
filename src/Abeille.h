@@ -153,6 +153,6 @@ void Abeille<F>::testInitFleurs() const {
     ASSERT(fleurs.size() == nbFleurs);
 }
 
-
+//TODO finir tous les tests.
 
 #endif /* ABEILLE_H_ */
