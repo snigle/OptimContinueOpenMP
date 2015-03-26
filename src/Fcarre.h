@@ -17,8 +17,8 @@ public:
 
     double f(const std::vector<double>& parametres) const;
 
-    std::vector<double> getMin();
-    std::vector<double> getMax();
+    std::vector<double> getMin() const;
+    std::vector<double> getMax() const;
 };
 
 #endif /* SRC_FCARRE_H_ */
