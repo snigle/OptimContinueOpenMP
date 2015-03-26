@@ -5,13 +5,18 @@
 #include "Fcarre.h"
 #include "Essaim.h"
 #include <iostream>
-
+#include "Abeille.h"
 #include"Fbohachevsky.h"
 #include"Fackley.h"
 #include "Abeille.h"
 
 using namespace std;
 
+void testAbeill()
+{
+	F_carre f { };
+	Abeille<F_carre> abeille(f,10,12);
+}
 void EssaimMajVoisin(){
     Fackley f;
 	Essaim<Fackley> e(f, 0.02, 0.02, 100,10);
