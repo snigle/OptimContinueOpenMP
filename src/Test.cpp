@@ -37,7 +37,7 @@ void algo(){
 
 void solveEssaim(){
 	Fackley f;
-	Essaim<Fackley> e(f, 0.02, 0.02, 1000,10000);
+	Essaim<Fackley> e(f, 0.02, 0.02, 1000,1000);
 	e.initVectors();
 	e.afficherParticules();
 

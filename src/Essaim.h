@@ -178,8 +178,11 @@ void Essaim<F>::solve(){
 							posResultatLocal = xp[i];
 						}
 					}
+
 					majVoisins(i);
 				}
+//				std::cout<<"Res= "<<valResultatLocal<<std::endl;
+//				std::cout.flush();
 		#pragma omp critical
 				{
 					if(valResultatLocal < valResultat){
