@@ -124,4 +124,6 @@ void Abeille<F>::testInitFleurs() const {
 	ASSERT(fleurs.size() == nbFleurs);
 }
 
+
+
 #endif /* ABEILLE_H_ */
