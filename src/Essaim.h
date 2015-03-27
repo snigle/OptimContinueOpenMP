@@ -7,6 +7,7 @@
 
 #ifndef ESSAIM_H_
 #define ESSAIM_H_
+#include "mpi-bind.h"
 #include <omp.h>
 #include "Fcarre.h"
 #include "../cute/cute_base.h"
@@ -54,7 +55,9 @@ public:
             unsigned _cArret);
     virtual ~Essaim();
 
+    void solve(unsigned nbThread);
     void solve();
+    void solveMpi(const MpiBind &mpi);
     void initVectors();
 
     double coefConstriction(double rho1, double rho2);
@@ -154,9 +157,8 @@ void Essaim<F>::initVectors() {
 }
 
 template <typename F>
-
-
-void Essaim<F>::solve(){
+void Essaim<F>::solve(unsigned nbThread){
+	omp_set_num_threads(nbThread);
 	double r1;
 	//	double c1, c2, r2, rho1, rho2;
 		double Fi;
@@ -212,17 +214,11 @@ void Essaim<F>::solve(){
 
 		#pragma omp for
 				for (unsigned i = 0; i < nbParticules; ++i) {
-					//do{
+
 						r1 = rand()/(double)RAND_MAX;
-		//				r2 = rand()/(double)RAND_MAX;
-		//				rho1 = c1 * r1;
-		//				rho2 = c2 * r2;
-					//}while( rho1 + rho2 <= 4 );
+
 					for (unsigned j = 0; j < dimension; ++j) {
-		//				double var = vitesse[i][j];
-		//				double var2 = xp[i][j];
-		//				double var3 = xv[i][j];
-		//				double var4 = particules[i][j];
+
 						double var5 = ((rand()/(double)RAND_MAX)*(1.2-0.8)+0.8);
 						vitesse[i][j] = var5*(vitesse[i][j]) + r1*(xp[i][j] - particules[i][j]) + (1-r1)*( xv[i][j] - particules[i][j]);
 
@@ -230,19 +226,37 @@ void Essaim<F>::solve(){
 						if(particules[i][j] < obj.getMin()[j] || particules[i][j] > obj.getMax()[j] ) {
 							vitesse[i][j] = 0;
 						}
-						//somVitesse += vitesse[i][j];
 					}
 				}
 			}
 			compteur ++;
-	//		if( compteur%100==0 ){
-	//			//this->afficherParticules();
-	//			posResultat = xp[positionMinimumGlobal()];
-	//			std::cout<<*this<<std::endl;
-	//		}
+
 		} while (compteur < cArret );
 
-		//posResultat = xp[positionMinimumGlobal()];
+}
+
+template <typename F>
+void Essaim<F>::solve(){
+	solve(omp_get_max_threads());
+}
+template <typename F>
+void Essaim<F>::solveMpi(const MpiBind &mpi){
+	this->solve(1);
+	std::vector<double> localRes = posResultat;
+	std::cout<<"Local :"<<*this<<std::endl;
+	if(mpi.getRank()==0){
+
+		for(unsigned i=1;i<mpi.getSize();++i){
+			mpi.recv(localRes,i);
+			if(obj.f(localRes)<obj.f(posResultat)){
+				posResultat = localRes;
+			}
+		}
+	}
+	else{
+
+		mpi.send(localRes,0);
+	}
 
 }
 
@@ -387,16 +401,16 @@ void Essaim<FonctionObjetctif>::testMajVoisins() {
 
     majVoisins(0);
 
-    ASSERT(cv[0] < c[nbParticules - 1]);
-    ASSERT(cv[0] < c[1]);
+    ASSERT(cv[0] <= c[nbParticules - 1]);
+    ASSERT(cv[0] <= c[1]);
     for (unsigned i = 1; i < nbParticules - 1; ++i) {
         majVoisins(i);
-        ASSERT(cv[i] < c[i - 1]);
-        ASSERT(cv[i] < c[i + 1]);
+        ASSERT(cv[i] <= c[i - 1]);
+        ASSERT(cv[i] <= c[i + 1]);
     }
     majVoisins(nbParticules - 1);
-    ASSERT(cv[nbParticules - 1] < c[0]);
-    ASSERT(cv[nbParticules - 1] < c[nbParticules - 1 - 1]);
+    ASSERT(cv[nbParticules - 1] <= c[0]);
+    ASSERT(cv[nbParticules - 1] <= c[nbParticules - 1 - 1]);
 
 
 
