@@ -19,8 +19,8 @@ class Fackley {
 public:
 	double f(const std::vector<double> params) const;
 
-	std::vector<double> getMin();
-	std::vector<double> getMax();
+	std::vector<double> getMin()const;
+	std::vector<double> getMax()const;
 };
 
 #endif /* SRC_FACKLEY_H_ */

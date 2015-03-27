@@ -13,13 +13,43 @@
 
 using namespace std;
 
-void testAbeill()
+void testAbeillF_carre()
 {
 	F_carre f { };
-	Abeille<F_carre> abeille(f,10,10000);
+	Abeille<F_carre> abeille(f,500,100);
 	abeille.testInitFleurs();
+	double res { abeille.solve()[0] };
+	std::cout<<"distance avec résultat attendu : "<<res-0<<std::endl;
 }
-void EssaimMajVoisin(){
+
+void testAbeillFackley()
+{
+	Fackley f { };
+	Abeille<Fackley> abeille(f,500,100);
+//	abeille.testInitFleurs();
+	std::vector<double> res=abeille.solve();
+	for(unsigned i=0;i<f.getMax().size();++i)
+	{
+		std::cout<<"distance avec résultat attendu sur dimension "<<i<<" : "<<res[i]-0<<std::endl;
+	}
+
+}
+
+void testAbeillFbohachevsky()
+{
+	Fbohachevsky f { };
+	Abeille<Fbohachevsky> abeille(f,500,100);
+//	abeille.testInitFleurs();
+	std::vector<double> res=abeille.solve();
+	for(unsigned i=0;i<f.getMax().size();++i)
+	{
+		std::cout<<"distance avec résultat attendu sur dimension "<<i<<" : "<<res[i]-0<<std::endl;
+	}
+
+}
+
+void EssaimMajVoisin()
+{
     Fackley f;
 	Essaim<Fackley> e(f, 0.02, 0.02, 100,10);
         e.testMajVoisins();
@@ -51,7 +81,7 @@ void init() {
 
 void algo(){
     F_carre f;
-    Abeille<F_carre> a(f,10,10000);
+    Abeille<F_carre> a(f,10,30);
     ASSERTM("start writing tests",true);
 
 }
@@ -81,7 +111,9 @@ void runAllTests(int argc, char *argv[]){
 	s.push_back(CUTE(solveEssaim));
 	s.push_back(CUTE(algo));
 
-	s.push_back(CUTE(testAbeill));
+//	s.push_back(CUTE(testAbeillF_carre));
+//	s.push_back(CUTE(testAbeillFackley));
+	s.push_back(CUTE(testAbeillFbohachevsky));
 	cute::xml_file_opener xmlfile(argc,argv);
 	cute::xml_listener<cute::ide_listener<> >  lis(xmlfile.out);
 	cute::makeRunner(lis,argc,argv)(s, "AllTests");
