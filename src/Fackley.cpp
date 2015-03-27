@@ -24,7 +24,7 @@ double Fackley::f(const std::vector<double> params) const{
 				+ exp(1) );
 }
 
-std::vector<double> Fackley::getMin() {
+std::vector<double> Fackley::getMin() const{
 	std::vector<double> vect{};
 	vect.push_back(0.0);
 	vect.push_back(0.0);
@@ -35,7 +35,7 @@ std::vector<double> Fackley::getMin() {
 
 }
 
-std::vector<double> Fackley::getMax() {
+std::vector<double> Fackley::getMax() const{
 	std::vector<double> vect{};
 		vect.push_back(0.0);
 		vect.push_back(0.0);
