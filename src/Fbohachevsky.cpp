@@ -23,7 +23,7 @@ double Fbohachevsky::f(const std::vector<double> params) const{
 	return ((x1*x1+2*(x2*x2))-(0.3*cos(3*M_PI*x1))-(0.4*cos(4*M_PI*x2))+0.7);
 }
 
-std::vector<double> Fbohachevsky::getMin() {
+std::vector<double> Fbohachevsky::getMin()const {
 	std::vector<double> vect{};
 	vect.push_back(0.0);
 	vect.push_back(0.0);
@@ -34,7 +34,7 @@ std::vector<double> Fbohachevsky::getMin() {
 
 }
 
-std::vector<double> Fbohachevsky::getMax() {
+std::vector<double> Fbohachevsky::getMax()const {
 	std::vector<double> vect{};
 		vect.push_back(0.0);
 		vect.push_back(0.0);

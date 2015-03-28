@@ -46,6 +46,7 @@ public:
 
     std::vector<double> solve();
     void testInitFleurs()const;
+    void testGenererFleur();
 };
 
 template<typename F>
@@ -194,7 +195,27 @@ void Abeille<F>::testInitFleurs() const {
     for(unsigned i=0;i<nbFleurs;++i)
     {
     	ASSERT(iterations[i]==0);
+    	for(unsigned j=0;j<dimension;++j)
+    	{
+    		ASSERT(fleurs[i][j]<max[j] && fleurs[i][j]>min[j]);
+    	}
+
+
     }
+}
+
+template<typename F>
+void Abeille<F>::testGenererFleur()
+{
+	std::vector<double> min = obj.getMin();
+	std::vector<double> max = obj.getMax();
+	auto fleur = genererFleur();
+	for(unsigned i=0;i<dimension;++i)
+	{
+		ASSERT(fleur[i]<max[i] && fleur[i]>min[i]);
+	}
+
+
 }
 
 //TODO finir tous les tests.

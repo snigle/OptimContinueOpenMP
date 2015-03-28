@@ -12,16 +12,16 @@
 #include "Abeille.h"
 
 using namespace std;
-
+//Test pour voir si la distance à la vraie solution est accpetable en utilisant l'heuristique des abeilles.
 void testAbeillF_carre()
 {
 	F_carre f { };
 	Abeille<F_carre> abeille(f,500,100);
 	abeille.testInitFleurs();
 	double res { abeille.solve()[0] };
-	std::cout<<"distance avec résultat attendu : "<<res-0<<std::endl;
+	ASSERT(res-0<0.01);
 }
-
+//Test pour voir si la distance à la vraie solution est accpetable en utilisant l'heuristique des abeilles.
 void testAbeillFackley()
 {
 	Fackley f { };
@@ -30,11 +30,11 @@ void testAbeillFackley()
 	std::vector<double> res=abeille.solve();
 	for(unsigned i=0;i<f.getMax().size();++i)
 	{
-		std::cout<<"distance avec résultat attendu sur dimension "<<i<<" : "<<res[i]-0<<std::endl;
+		ASSERT(res[i]-0<0.01);
 	}
 
 }
-
+//Test pour voir si la distance à la vraie solution est acceptable en utilisant l'heuristique des abeilles.
 void testAbeillFbohachevsky()
 {
 	Fbohachevsky f { };
@@ -43,16 +43,24 @@ void testAbeillFbohachevsky()
 	std::vector<double> res=abeille.solve();
 	for(unsigned i=0;i<f.getMax().size();++i)
 	{
-		std::cout<<"distance avec résultat attendu sur dimension "<<i<<" : "<<res[i]-0<<std::endl;
+		ASSERT(res[i]-0<0.01);
 	}
 
+}
+
+
+void testAbeilleGenererFleur()
+{
+	Fbohachevsky f { };
+	Abeille<Fbohachevsky> abeille(f,500,100);
+	abeille.testGenererFleur();
 }
 
 void EssaimMajVoisin()
 {
     Fackley f;
 	Essaim<Fackley> e(f, 0.02, 0.02, 100,10);
-        e.testMajVoisins();
+	e.testMajVoisins();
 }
 
 void EssaimInitVectors(){
@@ -60,6 +68,7 @@ void EssaimInitVectors(){
 	Essaim<Fbohachevsky> e(f, 0,02, 100, 10);
 	e.testMajVoisins();
 }
+
 
 void fCarre(){
 	F_carre f;
@@ -101,19 +110,20 @@ void solveEssaim(){
 void runAllTests(int argc, char *argv[]){
 	cute::suite s{};
 
-	s.push_back(CUTE(init));
-	s.push_back(CUTE(fCarre));
-	s.push_back(CUTE(solveEssaim));
-
-        s.push_back(CUTE(EssaimInitVectors));
-        s.push_back(CUTE(EssaimMajVoisin));
-
-	s.push_back(CUTE(solveEssaim));
-	s.push_back(CUTE(algo));
+//	s.push_back(CUTE(init));
+//	s.push_back(CUTE(fCarre));
+//	s.push_back(CUTE(solveEssaim));
+//
+//        s.push_back(CUTE(EssaimInitVectors));
+//        s.push_back(CUTE(EssaimMajVoisin));
+//
+//	s.push_back(CUTE(solveEssaim));
+//	s.push_back(CUTE(algo));
 
 //	s.push_back(CUTE(testAbeillF_carre));
-//	s.push_back(CUTE(testAbeillFackley));
-	s.push_back(CUTE(testAbeillFbohachevsky));
+	s.push_back(CUTE(testAbeillFackley));
+	s.push_back(CUTE(testAbeilleGenererFleur));
+//	s.push_back(CUTE(testAbeillFbohachevsky));
 	cute::xml_file_opener xmlfile(argc,argv);
 	cute::xml_listener<cute::ide_listener<> >  lis(xmlfile.out);
 	cute::makeRunner(lis,argc,argv)(s, "AllTests");
