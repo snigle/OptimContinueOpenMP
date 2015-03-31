@@ -11,65 +11,93 @@
 #include"Fackley.h"
 #include "Abeille.h"
 #include "Fschwefel.h"
+#include <stdio.h>
+#include <string.h>
 
 using namespace std;
-//Test pour voir si la distance à la vraie solution est accpetable en utilisant l'heuristique des abeilles.
-void testAbeillF_carre()
-{
-	F_carre f { };
-	Abeille<F_carre> abeille(f,500,100);
-	abeille.testInitFleurs();
-	abeille.solve();
-		cout<<abeille<<endl;
-////	double res { abeille.solve()[0] };
-//	ASSERT(res-0<0.01);
-}
-//Test pour voir si la distance à la vraie solution est accpetable en utilisant l'heuristique des abeilles.
-void testAbeillFackley()
-{
-	Fackley f { };
-	Abeille<Fackley> abeille(f,500,100);
-//	abeille.testInitFleurs();
-	abeille.solve();
-	cout<<abeille<<endl;
-//	std::vector<double> res=abeille.getPosResult;
-//	for(unsigned i=0;i<f.getMax().size();++i)
-//	{
-//		ASSERT(res[i]-0<0.01);
-//	}
-
-}
-//Test pour voir si la distance à la vraie solution est acceptable en utilisant l'heuristique des abeilles.
-void testAbeillFbohachevsky()
-{
-	Fbohachevsky f { };
-	Abeille<Fbohachevsky> abeille(f,500,100);
-	abeille.solve();
-		cout<<abeille<<endl;
-//	abeille.testInitFleurs();
-//	std::vector<double> res=abeille.solve();
-//	for(unsigned i=0;i<f.getMax().size();++i)
-//	{
-//		ASSERT(res[i]-0<0.01);
-//	}
-
-}
-
+//////////////////////////////////Tests pour l'heuristique des abeilles//////////////////
 
 void testAbeilleGenererFleur()
 {
+	ASSERTM("Vérifie que la fleur est bien dans les limites de l'espace de recherche",true);
 	Fbohachevsky f { };
 	Abeille<Fbohachevsky> abeille(f,500,100);
 	abeille.testGenererFleur();
 }
 
+
+void testAbeillF_carre()
+{
+	ASSERTM("Test de résolution de la fonciton fcarré avec l'heuristique des abeilles",true);
+	F_carre f { };
+	Abeille<F_carre> abeille(f,500,100);
+	abeille.testInitFleurs();
+	abeille.solve();
+	cout<<abeille<<endl;
+}
+
+void testAbeillFackley()
+{
+	ASSERTM("Test de résolution de la fonction de ackley avec l'heuristique des abeilles (2 dimensions)",true);
+	Fackley f { };
+	Abeille<Fackley> abeille(f,500,100);
+	abeille.solve();
+	cout<<abeille<<endl;
+
+}
+
+void testAbeillFbohachevsky()
+{
+	ASSERTM("Test de résolution de la fonction de bohachevsky avec l'heuristique des abeilles (2 dimensions)",true);
+	Fbohachevsky f { };
+	Abeille<Fbohachevsky> abeille(f,500,100);
+	abeille.solve();
+	cout<<abeille<<endl;
+}
+
 void testAbeilleFschwefel()
 {
+	ASSERTM("Test de résolution de la fonction de schewefel avec l'heuristique des abeilles (3 dimensions)",true);
 	Fschwefel<3> f ;
 	Abeille<Fschwefel<3>> abeille(f,100,1000);
 	abeille.solve();
-		cout<<abeille<<endl;
+	cout<<abeille<<endl;
 
+
+
+}
+
+//////////////////////////////////Tests pour l'heuristique des abeilles//////////////////
+
+void EssaimMajVoisin()
+{
+	ASSERTM("tests pour la mise à jour des voisins",true);
+    Fackley f;
+	Essaim<Fackley> e(f, 0.02, 0.02, 100,10);
+	e.testMajVoisins();
+}
+
+void EssaimInitVectors(){
+	ASSERTM("tests pour l'initialisation des vecteurs",true);
+    Fbohachevsky f;
+	Essaim<Fbohachevsky> e(f, 0,02, 100, 10);
+	e.testMajVoisins();
+}
+
+void testEssaimFcarre(){
+	F_carre f;
+	Essaim<F_carre> e(f, 0.02, 0.02, 1000,1000);
+	e.solve();
+	cout<<e<<endl;
+
+
+}
+
+void testEssaimAckley(){
+	Fackley f;
+	Essaim<Fackley> e(f, 0.02, 0.02, 1000,1000);
+	e.solve();
+	cout<<e<<endl;
 
 
 }
@@ -80,67 +108,44 @@ void testEssaimFschwefel()
 	Essaim<Fschwefel<3>> essaim(f, 0.02, 0.02, 500,10000);
 	essaim.solve();
 	std::cout<<essaim<<std::endl;
-
-
-
-
-}
-
-void EssaimMajVoisin()
-{
-    Fackley f;
-	Essaim<Fackley> e(f, 0.02, 0.02, 100,10);
-	e.testMajVoisins();
-}
-
-void EssaimInitVectors(){
-    Fbohachevsky f;
-	Essaim<Fbohachevsky> e(f, 0,02, 100, 10);
-	e.testMajVoisins();
 }
 
 
-void fCarre(){
-	F_carre f;
-	vector<double> x(1);
-	x[0]=2;
-	ASSERT_EQUAL(4,f.f(x));
-        
-        Essaim<F_carre> e(f,0,0,1000,1000);
-        e.solve();
-        std::vector<double> res = e.getResultat();
-        cout<<res[0]<<endl;
-}
 
 void init() {
 	ASSERTM("start writing tests",true);
 }
 
-//Test sur la classe Algorithme.
-
-void algo(){
-    F_carre f;
-    Abeille<F_carre> a(f,10,30);
-    ASSERTM("start writing tests",true);
-
-}
-
-void solveEssaim(){
-	Fackley f;
-	Essaim<Fackley> e(f, 0.02, 0.02, 1000,1000);
-	e.initVectors();
-	//e.afficherParticules();
-
-	e.solve();
-	cout<<e<<endl;
 
 
-}
 
 void runAllTests(int argc, char *argv[]){
 	cute::suite s{};
+	s.push_back(CUTE(init));
+	if(argc==2)
+	{
+		//Test avec les abeilles.
+		if(strcmp(argv[1],"-a")==0)
+		{
+			s.push_back(CUTE(testAbeilleGenererFleur));
+			s.push_back(CUTE(testAbeillF_carre));
+			s.push_back(testAbeillFackley);
+			s.push_back(CUTE(testAbeillFbohachevsky));
+			s.push_back(CUTE(testAbeilleFschwefel));
+		}
+		//Test avec les essaims.
+		if(argv[1]=="-e")
+		{
+			s.push_back(CUTE(EssaimMajVoisin));
+			s.push_back(CUTE(EssaimInitVectors));
+			s.push_back(CUTE(testEssaimFcarre));
+			s.push_back(CUTE(testEssaimAckley));
+			s.push_back(CUTE(testEssaimFschwefel));
 
+		}
+	}
 
+	//TODO ajouter les tests en parallèle, OPENMP, MPI
 //	s.push_back(CUTE(init));
 //	s.push_back(CUTE(fCarre));
 //	s.push_back(CUTE(solveEssaim));
@@ -166,9 +171,9 @@ void runAllTests(int argc, char *argv[]){
 int main(int argc, char** argv){
 
     try {
-    	MpiBind mpi(argc,argv);
-    	if(mpi.getRank()==0){
-    	runAllTests(argc,argv);
+			MpiBind mpi(argc,argv);
+			if(mpi.getRank()==0){
+			runAllTests(argc,argv);
     	}
 
     	F_carre f;

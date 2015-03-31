@@ -220,6 +220,7 @@ void Abeille<F>::solveMpi(const MpiBind &mpi) {
 
 template<typename F>
 void Abeille<F>::testInitFleurs() const {
+	ASSERTM("Test sur l'initialisation des fleurs",true);
     std::vector<double> min = obj.getMin();
     std::vector<double> max = obj.getMax();
     std::vector<std::vector<double>>&fleurs = *pFleurs;
