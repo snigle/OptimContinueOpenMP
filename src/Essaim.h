@@ -98,9 +98,9 @@ pcv(new std::vector<double>(_nbParticules)),
 pxv(new std::vector<std::vector<double>>(_nbParticules)),
 pvitesse(new std::vector<std::vector<double>>(_nbParticules)),
 posResultat(std::vector<double>(_obj.getMax().size())),
-generator(std::time(nullptr)), distribution(0, 1), distributionC1(0.8, 1.2), distributionParticule(_obj.getMax().size() - 1) {
-    const std::vector<double>& min = obj.getMin();
-    const std::vector<double>& max = obj.getMax();
+generator(std::time(nullptr)), distribution(0, 1), distributionC1(0.8, 1.2), distributionParticule(_obj.getMax().size()) {
+    const std::vector<double> min = obj.getMin();
+    const std::vector<double> max = obj.getMax();
     for (unsigned j = 0; j < dimension; ++j) {
         distributionParticule[j] = std::uniform_real_distribution<double>(min[j],
                 max[j]);
@@ -239,7 +239,7 @@ template <typename F>
 void Essaim<F>::solveMpi(const MpiBind &mpi) {
     this->solve(1);
     std::vector<double> localRes = posResultat;
-    std::cout << "Local :" << *this << std::endl;
+//    std::cout << "Local :" << *this << std::endl;
     if (mpi.getRank() == 0) {
 
         for (unsigned i = 1; i < mpi.getSize(); ++i) {
@@ -252,7 +252,6 @@ void Essaim<F>::solveMpi(const MpiBind &mpi) {
 
         mpi.send(localRes, 0);
     }
-
 }
 
 template <typename F>
