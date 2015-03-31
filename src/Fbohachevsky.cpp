@@ -43,3 +43,5 @@ std::vector<double> Fbohachevsky::getMax()const {
 
 		return vect;
 }
+
+

@@ -221,9 +221,11 @@ void Essaim<F>::solve(unsigned nbThread){
 
 						double var5 = ((rand()/(double)RAND_MAX)*(1.2-0.8)+0.8);
 						vitesse[i][j] = var5*(vitesse[i][j]) + r1*(xp[i][j] - particules[i][j]) + (1-r1)*( xv[i][j] - particules[i][j]);
-
-						particules[i][j] = particules[i][j] + vitesse[i][j];
-						if(particules[i][j] < obj.getMin()[j] || particules[i][j] > obj.getMax()[j] ) {
+						double nouvellePosition = particules[i][j] + vitesse[i][j];
+						if(nouvellePosition>min[j] && nouvellePosition<max[j]){
+						particules[i][j] = nouvellePosition;
+						}
+						else{
 							vitesse[i][j] = 0;
 						}
 					}
