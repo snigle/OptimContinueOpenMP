@@ -7,6 +7,8 @@
 
 #ifndef ABEILLE_H_
 #define ABEILLE_H_
+#include "mpi-bind.h"
+#include <omp.h>
 #include <vector>
 #include <iostream>
 #include <memory>
@@ -34,6 +36,8 @@ private:
     std::uniform_int_distribution<unsigned> distributionDimension;
     std::uniform_real_distribution<double>distributionVoisin;
 
+    std::vector<double> posResultat;
+
 
 
     double fitness(std::vector<double>)const;
@@ -44,10 +48,18 @@ private:
 public:
     Abeille(F _obj, unsigned _nbFleurs, unsigned _max);
 
-    std::vector<double> solve();
+    void solve();
+    void solve(unsigned nbThread);
+    void solveMpi(const MpiBind &mpi);
     void testInitFleurs()const;
     void testGenererFleur();
+
+    template<typename U>
+    friend std::ostream& operator<<(std::ostream& out, const Abeille<U>& e);
 };
+
+template<typename U>
+std::ostream& operator<<(std::ostream& out, const Abeille<U>& e);
 
 template<typename F>
 Abeille<F>::Abeille(F _obj, unsigned _nbFleurs, unsigned _max) :
@@ -153,33 +165,56 @@ void Abeille<F>::initVectors() {
 }
 
 template<typename F>
-std::vector<double> Abeille<F>::solve() {
+void Abeille<F>::solve(unsigned nbThread) {
+	omp_set_num_threads(nbThread);
     std::vector<double>& fitnesses = *pFitnesses;
     std::vector<std::vector<double>>&fleurs = *pFleurs;
     std::vector<unsigned>& iterations = *pIterations;
 
-    std::vector<double> resultat = fleurs[0];
+    posResultat = fleurs[0];
 
-    for (long unsigned i = 0; i < 10000; ++i) {
-        majFitnesses();
-        for (unsigned scout = 0; scout < nbFleurs; ++scout) {
-            unsigned position = distribution(generator);
+	for (long unsigned i = 0; i < 10000; ++i) {
+		majFitnesses();
+		for (unsigned scout = 0; scout < nbFleurs; ++scout) {
+			unsigned position = distribution(generator);
 
-            std::vector<double>& fleur = fleurs[position];
-            std::vector<double> voisin = genererFleur();
-            iterations[position]++;
-            if (fitnesses[position] < fitness(voisin)) {
-                fleur = voisin;
-                iterations[position] = 0;
-                if(fitness(resultat)<fitness(voisin)){
-                	resultat = voisin;
-//                	std::cout<<resultat[0]<<std::endl;
-                }
+			std::vector<double>& fleur = fleurs[position];
+			std::vector<double> voisin = genererFleur();
+			iterations[position]++;
+			if (fitnesses[position] < fitness(voisin)) {
+				fleur = voisin;
+				iterations[position] = 0;
+				if(fitness(posResultat)<fitness(voisin)){
+					posResultat = voisin;
+				}
+			}
+		}
+	}
+
+}
+
+template <typename F>
+void Abeille<F>::solve() {
+    solve(omp_get_max_threads());
+}
+
+template <typename F>
+void Abeille<F>::solveMpi(const MpiBind &mpi) {
+    this->solve(1);
+    std::vector<double> localRes = posResultat;
+//    std::cout << "Local :" << *this << std::endl;
+    if (mpi.getRank() == 0) {
+
+        for (unsigned i = 1; i < mpi.getSize(); ++i) {
+            mpi.recv(localRes, i);
+            if (obj.f(localRes) < obj.f(posResultat)) {
+                posResultat = localRes;
             }
         }
+    } else {
+
+        mpi.send(localRes, 0);
     }
-//    std::cout<<resultat[0]<<std::endl;
-    return resultat;
 }
 
 
@@ -216,6 +251,16 @@ void Abeille<F>::testGenererFleur()
 	}
 
 
+}
+
+template <typename F>
+std::ostream& operator<<(std::ostream& out, const Abeille<F>& e) {
+    out << "F(";
+    for (unsigned i = 0; i < e.dimension; ++i) {
+        out << e.posResultat[i] << ",";
+    }
+    out << ") = " << e.obj.f(e.posResultat) << std::endl;
+    return out;
 }
 
 //TODO finir tous les tests.
