@@ -10,6 +10,7 @@
 #include"Fbohachevsky.h"
 #include"Fackley.h"
 #include "Abeille.h"
+#include "Fschwefel.h"
 
 using namespace std;
 //Test pour voir si la distance à la vraie solution est accpetable en utilisant l'heuristique des abeilles.
@@ -54,6 +55,32 @@ void testAbeilleGenererFleur()
 	Fbohachevsky f { };
 	Abeille<Fbohachevsky> abeille(f,500,100);
 	abeille.testGenererFleur();
+}
+
+void testAbeilleFschwefel()
+{
+	Fschwefel<3> f ;
+	Abeille<Fschwefel<3>> abeille(f,100,1000);
+	std::vector<double>res=abeille.solve();
+	for(unsigned i=0;i<3;++i)
+	{
+		std::cout<<res[i]<<std::endl;
+	}
+
+
+
+}
+
+void testEssaimFschwefel()
+{
+	Fschwefel<3> f ;
+	Essaim<Fschwefel<3>> essaim(f, 0.02, 0.02, 500,10000);
+	essaim.solve();
+	std::cout<<essaim<<std::endl;
+
+
+
+
 }
 
 void EssaimMajVoisin()
@@ -121,8 +148,10 @@ void runAllTests(int argc, char *argv[]){
 //	s.push_back(CUTE(algo));
 
 //	s.push_back(CUTE(testAbeillF_carre));
-	s.push_back(CUTE(testAbeillFackley));
-	s.push_back(CUTE(testAbeilleGenererFleur));
+//	s.push_back(CUTE(testAbeillFackley));
+//	s.push_back(CUTE(testAbeilleGenererFleur));
+//	s.push_back(CUTE(testAbeilleFschwefel));
+	s.push_back(CUTE(testEssaimFschwefel));
 //	s.push_back(CUTE(testAbeillFbohachevsky));
 	cute::xml_file_opener xmlfile(argc,argv);
 	cute::xml_listener<cute::ide_listener<> >  lis(xmlfile.out);
