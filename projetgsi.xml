@@ -1,5 +1,10 @@
 <testsuites>
-	<testsuite name="AllTests" tests="1">
+	<testsuite name="AllTests" tests="6">
+		<testcase classname="AllTests" name="init"/>
+		<testcase classname="AllTests" name="EssaimMajVoisin"/>
+		<testcase classname="AllTests" name="EssaimInitVectors"/>
+		<testcase classname="AllTests" name="testEssaimFcarre"/>
+		<testcase classname="AllTests" name="testEssaimAckley"/>
 		<testcase classname="AllTests" name="testEssaimFschwefel"/>
 	</testsuite>
 </testsuites>

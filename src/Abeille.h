@@ -70,12 +70,11 @@ pFleurs(new std::vector<std::vector<double> >(_nbFleurs))
 , maxIterations(_max)
 , nbFleurs(_nbFleurs)
 , generator(std::time(nullptr))
-, distribution(0, _nbFleurs-1)
+, distribution(0, _nbFleurs - 1)
 , distributionParticule(_obj.getMax().size())
 , dimension(_obj.getMax().size())
-,distributionDimension(0,dimension-1)
-,distributionVoisin(-1,1)
- {
+, distributionDimension(0, dimension - 1)
+, distributionVoisin(-1, 1) {
 
     for (unsigned i = 0; i < dimension; ++i) {
         distributionParticule[i] = std::uniform_real_distribution<double>(obj.getMin()[i], obj.getMax()[i]);
@@ -104,7 +103,15 @@ void Abeille<F>::majFitnesses() {
     std::vector<double>& fitnesses = *pFitnesses;
     std::vector<unsigned> iterations = *pIterations;
 
+#pragma omp parallel for
+    for (unsigned i = 0; i < nbFleurs; ++i) {
+        if (iterations[i] > maxIterations) {
+            iterations[i] = 0;
+            fleurs[i] = genererFleur();
 
+        }
+    }
+#pragma omp parallel for
     for (unsigned i = 0; i < nbFleurs; ++i) {
         if (iterations[i] > maxIterations) {
             iterations[i] = 0;
@@ -113,7 +120,6 @@ void Abeille<F>::majFitnesses() {
         }
         std::vector<double> voisin = getVoisin(i);
         fitnesses[i] = fitness(voisin);
-        ++iterations[i];
     }
 }
 
@@ -130,26 +136,21 @@ template<typename F>
 std::vector<double> Abeille<F>::getVoisin(unsigned i) {
     std::vector<std::vector<double>> &fleurs = *pFleurs;
 
-	unsigned aleaDimension { };
+    unsigned aleaDimension{};
 
-    std::vector<double> fleur = genererFleur();
     std::vector<double> voisine = fleurs[i];
     aleaDimension = distributionDimension(generator);
     unsigned positionAleatoire = distribution(generator);
     voisine[aleaDimension] = voisine[aleaDimension]
-	+ distributionVoisin(generator)
-	* (voisine[aleaDimension] - fleurs[positionAleatoire][aleaDimension]);
+            + distributionVoisin(generator)
+            * (voisine[aleaDimension] - fleurs[positionAleatoire][aleaDimension]);
 
-//    std::cout<<((rand() / (double) RAND_MAX)*2 - 1)<<std::endl;
     return voisine;
 }
 
 template<typename F>
 void Abeille<F>::initVectors() {
-    std::vector<double>& fitnesses = *pFitnesses;
     std::vector<std::vector<double>>&fleurs = *pFleurs;
-    std::vector<unsigned>& iterations = *pIterations;
-
 
     std::vector<double> min = obj.getMin();
     std::vector<double> max = obj.getMax();
@@ -166,30 +167,32 @@ void Abeille<F>::initVectors() {
 
 template<typename F>
 void Abeille<F>::solve(unsigned nbThread) {
-	omp_set_num_threads(nbThread);
+    omp_set_num_threads(nbThread);
     std::vector<double>& fitnesses = *pFitnesses;
     std::vector<std::vector<double>>&fleurs = *pFleurs;
     std::vector<unsigned>& iterations = *pIterations;
 
     posResultat = fleurs[0];
 
-	for (long unsigned i = 0; i < 10000; ++i) {
-		majFitnesses();
-		for (unsigned scout = 0; scout < nbFleurs; ++scout) {
-			unsigned position = distribution(generator);
-
-			std::vector<double>& fleur = fleurs[position];
-			std::vector<double> voisin = genererFleur();
-			iterations[position]++;
-			if (fitnesses[position] < fitness(voisin)) {
-				fleur = voisin;
-				iterations[position] = 0;
-				if(fitness(posResultat)<fitness(voisin)){
-					posResultat = voisin;
-				}
-			}
-		}
-	}
+    for (long unsigned i = 0; i < 10000; ++i) {
+        majFitnesses();
+#pragma omp parallel for
+        for (unsigned scout = 0; scout < nbFleurs; ++scout) {
+            unsigned position = distribution(generator);
+            if (position % omp_get_num_threads() == omp_get_thread_num()) {
+                std::vector<double>& fleur = fleurs[position];
+                std::vector<double> voisin = genererFleur();
+                iterations[position]++;
+                if (fitnesses[position] < fitness(voisin)) {
+                    fleur = voisin;
+                    iterations[position] = 0;
+                    if (fitness(posResultat) < fitness(voisin)) {
+                        posResultat = voisin;
+                    }
+                }
+            }
+        }
+    }
 
 }
 
@@ -202,7 +205,7 @@ template <typename F>
 void Abeille<F>::solveMpi(const MpiBind &mpi) {
     this->solve(1);
     std::vector<double> localRes = posResultat;
-//    std::cout << "Local :" << *this << std::endl;
+    //    std::cout << "Local :" << *this << std::endl;
     if (mpi.getRank() == 0) {
 
         for (unsigned i = 1; i < mpi.getSize(); ++i) {
@@ -217,10 +220,9 @@ void Abeille<F>::solveMpi(const MpiBind &mpi) {
     }
 }
 
-
 template<typename F>
 void Abeille<F>::testInitFleurs() const {
-	ASSERTM("Test sur l'initialisation des fleurs",true);
+    ASSERTM("Test sur l'initialisation des fleurs", true);
     std::vector<double> min = obj.getMin();
     std::vector<double> max = obj.getMax();
     std::vector<std::vector<double>>&fleurs = *pFleurs;
@@ -228,28 +230,24 @@ void Abeille<F>::testInitFleurs() const {
     std::vector<unsigned>& iterations = *pIterations;
     ASSERT(fleurs.size() == nbFleurs);
 
-    for(unsigned i=0;i<nbFleurs;++i)
-    {
-    	ASSERT(iterations[i]==0);
-    	for(unsigned j=0;j<dimension;++j)
-    	{
-    		ASSERT(fleurs[i][j]<max[j] && fleurs[i][j]>min[j]);
-    	}
+    for (unsigned i = 0; i < nbFleurs; ++i) {
+        ASSERT(iterations[i] == 0);
+        for (unsigned j = 0; j < dimension; ++j) {
+            ASSERT(fleurs[i][j] < max[j] && fleurs[i][j] > min[j]);
+        }
 
 
     }
 }
 
 template<typename F>
-void Abeille<F>::testGenererFleur()
-{
-	std::vector<double> min = obj.getMin();
-	std::vector<double> max = obj.getMax();
-	auto fleur = genererFleur();
-	for(unsigned i=0;i<dimension;++i)
-	{
-		ASSERT(fleur[i]<max[i] && fleur[i]>min[i]);
-	}
+void Abeille<F>::testGenererFleur() {
+    std::vector<double> min = obj.getMin();
+    std::vector<double> max = obj.getMax();
+    auto fleur = genererFleur();
+    for (unsigned i = 0; i < dimension; ++i) {
+        ASSERT(fleur[i] < max[i] && fleur[i] > min[i]);
+    }
 
 
 }
