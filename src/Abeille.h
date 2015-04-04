@@ -53,7 +53,7 @@ public:
     void solveMpi(const MpiBind &mpi);
     void testInitFleurs()const;
     void testGenererFleur();
-
+    std::vector<double> getResultat()const;
     template<typename U>
     friend std::ostream& operator<<(std::ostream& out, const Abeille<U>& e);
 };
@@ -262,6 +262,12 @@ std::ostream& operator<<(std::ostream& out, const Abeille<F>& e) {
     }
     out << ") = " << e.obj.f(e.posResultat) << std::endl;
     return out;
+}
+
+template<typename F>
+std::vector<double> Abeille<F>::getResultat() const {
+
+	return posResultat;
 }
 
 //TODO finir tous les tests.
