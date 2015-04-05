@@ -17,43 +17,117 @@
 #include <random>
 #include "../cute/cute_base.h"
 
+/**
+ Classe permettant de d'optimiser une fonction à l'aide de l'algorithme des abeilles
+ */
 template <typename F>
 class Abeille {
 private:
-
+    /**
+     pointeur contenant les fleurs
+     */
     std::unique_ptr<std::vector<std::vector<double>>> pFleurs;
+    /**
+     pointeur contenant les fitnesses calculées par les abeilles employées (fitnesses[i] correspond à la fleurs[i])
+     */
     std::unique_ptr<std::vector<double>> pFitnesses;
+    /**
+     stock le nombre d'itération effectué par fleur
+     */
     std::unique_ptr<std::vector<unsigned>> pIterations;
+    /**
+     Objet contenant la fonction objectif
+     */
     F obj;
-    unsigned maxIterations;
-    unsigned nbFleurs;
 
+    unsigned maxIterationParFleur;
+    unsigned nbFleurs;
+    unsigned maxIteration;
+
+    /**
+     Permet de générer des nombres aléatoire de manière uniforme
+     */
     std::default_random_engine generator;
     std::uniform_int_distribution<int> distribution/*(0, 1)*/;
     std::vector<std::uniform_real_distribution<double>> distributionParticule/*(dimension)*/;
-
+    /**
+     Dimension d'une fleur, doit correspondre à la dimension du vecteur retourné par getMin et getMax de l'object objectif
+     */
     unsigned dimension;
     std::uniform_int_distribution<unsigned> distributionDimension;
     std::uniform_real_distribution<double>distributionVoisin;
-
+    /**
+     Fleur dont la fitness est la plus élevée
+     */
     std::vector<double> posResultat;
 
 
-
-    double fitness(std::vector<double>)const;
+    /**
+     * Calcul la fitness d'une fleur
+     * @param fleur vecteur de dimension @dimension
+     * @return retourne un réel, plus la fleur est bonne, plus la fitness est grande
+     */
+    double fitness(std::vector<double> fleur)const;
+    /**
+     * Alloue la mémoire nécessaire et initialise les vecteurs
+     */
     void initVectors();
+    /**
+     * Met à jour les fitness de toute les fleurs
+     */
     void majFitnesses();
+    /**
+     * Retourne un voisin de la fleur i
+     * @param i indice d'une fleur, doit etre compris entre 0 et nbFleurs
+     * @return retourne une fleur(vecteur de dimension @dimension)
+     */
     std::vector<double> getVoisin(unsigned i);
+    /**
+     * Génère une fleur compris dans l'intervalle de la fonction objectif
+     * @return retourne une fleur (vecteur de dimension @dimension)
+     */
     std::vector<double> genererFleur();
 public:
-    Abeille(F _obj, unsigned _nbFleurs, unsigned _max);
+    /**
+     *
+     * @param _obj Objet contenant une fonction objectif f(vector<double> v), getMin et getMax pour donner les bornes de cette fonction
+     * @param _nbFleurs le nombre de fleur souhaité pour l'execution de l'algorithme
+     * @param _iterationMaxParFleur le nombre de fois qu'une abeille observatrice passe sur une fleur avant de la laisser tomber
+     * @param _maxIteration le nombre d'itération total de l'algorithme
+     */
+    Abeille(F _obj, unsigned _nbFleurs, unsigned _iterationMaxParFleur, unsigned _maxIteration);
 
+    /**
+     * Execute l'algorithme en utilisant le nombre de processeurs par défaut d'omp
+     */
     void solve();
+    /**
+     * Execute l'algorithe des abeille et met à jour le résultat
+     * @param nbThread nombre de threads pour l'execution en parallèle
+     */
+
     void solve(unsigned nbThread);
+    /**
+     * Execute l'algorithme sur plusieurs ordinateurs en utilisant Mpi. Le résultat du processus 0 sera mis à jour
+     * @param mpi mpi doit etre initialisé avant
+     */
     void solveMpi(const MpiBind &mpi);
+    /**
+     * Vérifie que l'initialisation des fleurs est correct
+     */
     void testInitFleurs()const;
+    /**
+     * Vérifie que la génération d'une fleur est bonne.
+     */
     void testGenererFleur();
+    /**
+     * Récupère la fleur qui a la meilleure fitness.
+     */
     std::vector<double> getResultat()const;
+
+    /**
+     Affiche le résultat sous la forme F(posResultat)=Resultat
+     */
     template<typename U>
     friend std::ostream& operator<<(std::ostream& out, const Abeille<U>& e);
 };
@@ -62,13 +136,14 @@ template<typename U>
 std::ostream& operator<<(std::ostream& out, const Abeille<U>& e);
 
 template<typename F>
-Abeille<F>::Abeille(F _obj, unsigned _nbFleurs, unsigned _max) :
+Abeille<F>::Abeille(F _obj, unsigned _nbFleurs, unsigned _iterationMaxParFleur, unsigned _maxIteration) :
 pFleurs(new std::vector<std::vector<double> >(_nbFleurs))
 , pFitnesses(new std::vector<double>(_nbFleurs))
 , pIterations(new std::vector<unsigned>(_nbFleurs))
 , obj(_obj)
-, maxIterations(_max)
+, maxIterationParFleur(_iterationMaxParFleur)
 , nbFleurs(_nbFleurs)
+, maxIteration(_maxIteration)
 , generator(std::time(nullptr))
 , distribution(0, _nbFleurs - 1)
 , distributionParticule(_obj.getMax().size())
@@ -81,9 +156,7 @@ pFleurs(new std::vector<std::vector<double> >(_nbFleurs))
     }
 
     initVectors();
-    //	fleurs=*pFleurs;
-    //	fitnesses=*pFitnesses;
-    //	iterations=*pIterations;
+
 }
 
 template <typename F>
@@ -105,7 +178,7 @@ void Abeille<F>::majFitnesses() {
 
 #pragma omp parallel for
     for (unsigned i = 0; i < nbFleurs; ++i) {
-        if (iterations[i] > maxIterations) {
+        if (iterations[i] > maxIterationParFleur) {
             iterations[i] = 0;
             fleurs[i] = genererFleur();
 
@@ -113,7 +186,7 @@ void Abeille<F>::majFitnesses() {
     }
 #pragma omp parallel for
     for (unsigned i = 0; i < nbFleurs; ++i) {
-        if (iterations[i] > maxIterations) {
+        if (iterations[i] > maxIterationParFleur) {
             iterations[i] = 0;
             fleurs[i] = genererFleur();
 
@@ -174,21 +247,33 @@ void Abeille<F>::solve(unsigned nbThread) {
 
     posResultat = fleurs[0];
 
-    for (long unsigned i = 0; i < 10000; ++i) {
+    for (long unsigned i = 0; i < maxIteration; ++i) {
         majFitnesses();
-#pragma omp parallel for
-        for (unsigned scout = 0; scout < nbFleurs; ++scout) {
-            unsigned position = distribution(generator);
-            if (position % omp_get_num_threads() == omp_get_thread_num()) {
-                std::vector<double>& fleur = fleurs[position];
-                std::vector<double> voisin = genererFleur();
-                iterations[position]++;
-                if (fitnesses[position] < fitness(voisin)) {
-                    fleur = voisin;
-                    iterations[position] = 0;
-                    if (fitness(posResultat) < fitness(voisin)) {
-                        posResultat = voisin;
+#pragma omp parallel
+        {
+            std::vector<double> posResultatLocal = posResultat;
+#pragma omp for
+            for (unsigned scout = 0; scout < nbFleurs; ++scout) {
+                unsigned position = distribution(generator);
+                if ((position % (unsigned) omp_get_num_threads()) == (unsigned) omp_get_thread_num()) {
+                    std::vector<double>& fleur = fleurs[position];
+                    std::vector<double> voisin = genererFleur();
+                    iterations[position]++;
+                    if (fitnesses[position] < fitness(voisin)) {
+                        fleur = voisin;
+                        iterations[position] = 0;
+                        if (fitness(posResultatLocal) < fitness(voisin)) {
+                            posResultatLocal = voisin;
+
+                        }
                     }
+                }
+            }
+#pragma omp critical
+            {
+                if (fitness(posResultat) < fitness(posResultatLocal)) {
+                    posResultat = posResultatLocal;
+
                 }
             }
         }
@@ -205,9 +290,7 @@ template <typename F>
 void Abeille<F>::solveMpi(const MpiBind &mpi) {
     this->solve(1);
     std::vector<double> localRes = posResultat;
-    //    std::cout << "Local :" << *this << std::endl;
     if (mpi.getRank() == 0) {
-
         for (unsigned i = 1; i < mpi.getSize(); ++i) {
             mpi.recv(localRes, i);
             if (obj.f(localRes) < obj.f(posResultat)) {
@@ -267,7 +350,5 @@ std::vector<double> Abeille<F>::getResultat() const {
 
 	return posResultat;
 }
-
-//TODO finir tous les tests.
 
 #endif /* ABEILLE_H_ */
