@@ -51,10 +51,8 @@ private:
 	std::uniform_real_distribution<double> distribution;
 	std::uniform_real_distribution<double> distributionC1;
 	std::vector<std::uniform_real_distribution<double>> distributionParticule;
+
 public:
-	/*Essaim(F& f, const double& d, const double& e, const int& i,
-	 const int& j) {
-	 }*/
 
 	Essaim(F _obj, double _c1, double _c2, unsigned _nbParticules,
 			unsigned _cArret);
@@ -64,18 +62,12 @@ public:
 	void solve();
 	void solveMpi(const MpiBind &mpi);
 	void initVectors();
-
-	double coefConstriction(double rho1, double rho2);
 	bool majVoisins(unsigned i);
-	unsigned positionMinimumGlobal();
-
 	void afficherParticules();
-	void afficherMeilleurVoisin();
+	std::vector<double> getResultat();
 
 	void testMajVoisins();
 	void testInit();
-
-	std::vector<double> getResultat();
 
 	template<typename U>
 	friend std::ostream& operator<<(std::ostream& out, const Essaim<U>& e);
@@ -86,27 +78,27 @@ std::ostream& operator<<(std::ostream& out, const Essaim<F>& e);
 
 template<typename F>
 Essaim<F>::Essaim(F _obj, double _c1, double _c2, unsigned _nbParticules,
+	unsigned _cArret) :
+		obj(_obj), c1(_c1), c2(_c2), nbParticules(_nbParticules),
+		cArret(_cArret),
+		dimension(_obj.getMax().size()),
+		pparticules( new std::vector<std::vector<double>>(_nbParticules) ),
+		pc( new std::vector<double>(_nbParticules) ),
+		pxp( new std::vector<std::vector<double>>(_nbParticules) ),
+		pcv( new std::vector<double>(_nbParticules) ),
+		pxv( new std::vector<std::vector<double>>(_nbParticules) ),
+		pvitesse( new std::vector<std::vector<double>>(_nbParticules) ),
+		posResultat( std::vector<double>(_obj.getMax().size()) ),
+		generator( std::time(nullptr) ),
+		distribution(0, 1), distributionC1(0.8,1.2),
+		distributionParticule( _obj.getMax().size() ) {
 
-unsigned _cArret) :
-		obj(_obj), c1(_c1), c2(_c2), nbParticules(_nbParticules), cArret(
-				_cArret), dimension(_obj.getMax().size()), pparticules(
-				new std::vector<std::vector<double>>(_nbParticules)), pc(
-				new std::vector<double>(_nbParticules)), pxp(
-				new std::vector<std::vector<double>>(_nbParticules)), pcv(
-				new std::vector<double>(_nbParticules)), pxv(
-				new std::vector<std::vector<double>>(_nbParticules)), pvitesse(
-				new std::vector<std::vector<double>>(_nbParticules)), posResultat(
-				std::vector<double>(_obj.getMax().size())), generator(
-				std::time(nullptr)), distribution(0, 1), distributionC1(0.8,
-				1.2), distributionParticule(_obj.getMax().size()) {
-	const std::vector<double> min = obj.getMin();
-	const std::vector<double> max = obj.getMax();
-	for (unsigned j = 0; j < dimension; ++j) {
-		distributionParticule[j] = std::uniform_real_distribution<double>(
-				min[j], max[j]);
-	}
-	initVectors();
-
+			const std::vector<double> min = obj.getMin();
+			const std::vector<double> max = obj.getMax();
+			for (unsigned j = 0; j < dimension; ++j) {
+				distributionParticule[j] = std::uniform_real_distribution<double>( min[j], max[j] );
+			}
+			initVectors();
 }
 
 template<typename F>
@@ -119,6 +111,8 @@ std::vector<double> Essaim<F>::getResultat() {
 	return posResultat;
 }
 
+
+/* initVectors(): Initialise les attributs de la classe Essaim*/
 template<typename F>
 void Essaim<F>::initVectors() {
 
@@ -155,14 +149,16 @@ void Essaim<F>::initVectors() {
 	}
 }
 
+/* solve(unsigned nbThread): determine le minimum de la fonction objectif,
+ * en utilisant un certain nombre de Thread "nbThread" pour la parallelisation avec omp,
+ * le resultat sera stocke dans l'attribut "posResultat" */
 template<typename F>
 void Essaim<F>::solve(unsigned nbThread) {
 	omp_set_num_threads(nbThread);
-	double r1;
+	double R;
 	double Fi;
 	std::vector<double> min = obj.getMin();
 	std::vector<double> max = obj.getMax();
-
 	std::vector<std::vector<double>>&particules = *pparticules;
 	std::vector<std::vector<double>>&xp = *pxp;
 	std::vector<std::vector<double>>&vitesse = *pvitesse;
@@ -176,8 +172,6 @@ void Essaim<F>::solve(unsigned nbThread) {
 	unsigned compteur = 0;
 
 	do {
-		//		std::cout<<"compteur: "<<compteur<<std::endl;
-		//		this->afficherParticules();
 #pragma omp parallel
 		{
 			double valResultatLocal { c[0] };
@@ -193,11 +187,9 @@ void Essaim<F>::solve(unsigned nbThread) {
 						posResultatLocal = xp[i];
 					}
 				}
-
 				majVoisins(i);
 			}
-			//				std::cout<<"Res= "<<valResultatLocal<<std::endl;
-			//				std::cout.flush();
+
 #pragma omp critical
 			{
 				if (valResultatLocal < valResultat) {
@@ -209,14 +201,14 @@ void Essaim<F>::solve(unsigned nbThread) {
 #pragma omp for
 			for (unsigned i = 0; i < nbParticules; ++i) {
 
-				r1 = distribution(generator);
+				R = distribution(generator);
 
 				for (unsigned j = 0; j < dimension; ++j) {
 
-					double var5 = distributionC1(generator);
-					vitesse[i][j] = var5 * (vitesse[i][j])
-							+ r1 * (xp[i][j] - particules[i][j])
-							+ (1 - r1) * (xv[i][j] - particules[i][j]);
+					double c1 = distributionC1(generator);
+					vitesse[i][j] = c1 * (vitesse[i][j])
+							+ R * ( xp[i][j] - particules[i][j] )
+							+ (1 - R) * ( xv[i][j] - particules[i][j] );
 					double nouvellePosition = particules[i][j] + vitesse[i][j];
 					if (nouvellePosition > min[j]
 							&& nouvellePosition < max[j]) {
@@ -228,16 +220,17 @@ void Essaim<F>::solve(unsigned nbThread) {
 			}
 		}
 		compteur++;
-
 	} while (compteur < cArret);
-
 }
 
+/* solve(): determine le minimum de la fonction objectif en utilisant les parametres de base*/
 template<typename F>
 void Essaim<F>::solve() {
 	solve(omp_get_max_threads());
 }
 
+/* solveMpi(const MpiBind &mpi): determine le minimum de la fonction objectif,
+ * en utilisant la parallelisation MPI*/
 template<typename F>
 void Essaim<F>::solveMpi(const MpiBind &mpi) {
 	this->solve(1);
@@ -257,33 +250,10 @@ void Essaim<F>::solveMpi(const MpiBind &mpi) {
 	}
 }
 
+/* majVoisins(unsigned i): met à jour les deux voisins (vu qu'on a choisi la topologie en anneau)
+ * de la particule i
+ * c'est à dire la mise à jour des attributs "cv" et "xv" */
 template<typename F>
-
-unsigned Essaim<F>::positionMinimumGlobal() {
-	unsigned best_position;
-	double best_val;
-	std::vector<double>& c = *pc;
-	best_position = 0;
-	best_val = c[0];
-	for (unsigned i = 1; i < nbParticules; ++i) {
-		if (best_val >= c[i]) {
-			best_position = i;
-			best_val = c[i];
-		}
-	}
-	return best_position;
-}
-
-template<typename F>
-
-double Essaim<F>::coefConstriction(double rho1, double rho2) {
-	double rho;
-	rho = rho1 + rho2;
-	return (1 - (1 / (rho)) + (sqrt(fabs(pow(rho, 2) - 4 * rho)) / 2));
-}
-
-template<typename F>
-
 bool Essaim<F>::majVoisins(unsigned i) {
 
 	bool majEffectue { false };
@@ -299,18 +269,20 @@ bool Essaim<F>::majVoisins(unsigned i) {
 	// Topologie anneau
 	unsigned v1 { i - 1 };
 	unsigned v2 { i + 1 };
-	if (i == 0)
-		v1 = nbParticules - 1;
-	if (v2 == nbParticules)
-		v2 = 0;
 
-	if (obj.f(particules[v1]) < cv[i]) {
-		cv[i] = obj.f(particules[v1]);
+	if (i == 0) v1 = nbParticules - 1;
+	if (v2 == nbParticules) v2 = 0;
+
+	double f_v1 = obj.f(particules[v1]);
+	double f_v2 = obj.f(particules[v2]);
+
+	if ( f_v1 < cv[i]) {
+		cv[i] = f_v1;
 		xv[i] = particules[v1];
 		majEffectue = true;
 	}
-	if (obj.f(particules[v2]) < cv[i]) {
-		cv[i] = obj.f(particules[v2]);
+	if ( f_v2 < cv[i]) {
+		cv[i] = f_v2;
 		xv[i] = particules[v2];
 		majEffectue = true;
 	}
@@ -318,7 +290,6 @@ bool Essaim<F>::majVoisins(unsigned i) {
 }
 
 template<typename F>
-
 void Essaim<F>::afficherParticules() {
 	std::vector<double> min = obj.getMin();
 	std::vector<double> max = obj.getMax();
@@ -330,7 +301,6 @@ void Essaim<F>::afficherParticules() {
 	std::vector<double>& cv = *pcv;
 	std::cout << "p: | ";
 	for (unsigned i = 0; i < nbParticules; ++i) {
-
 		for (unsigned j = 0; j < dimension; ++j) {
 			std::cout << particules[i][j] << " , ";
 		}
@@ -377,11 +347,6 @@ void Essaim<F>::afficherParticules() {
 	}
 	std::cout << std::endl << "----------------------------------" << std::endl;
 
-}
-
-template<typename F>
-
-void Essaim<F>::afficherMeilleurVoisin() {
 }
 
 template<typename FonctionObjetctif>
