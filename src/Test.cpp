@@ -127,6 +127,7 @@ void runAllTests(int argc, char *argv[]){
 		//Test avec les abeilles.
 		if(strcmp(argv[1],"-a")==0)
 		{
+			cout<<"zfz";
 			s.push_back(CUTE(testAbeilleGenererFleur));
 			s.push_back(CUTE(testAbeillF_carre));
 			s.push_back(testAbeillFackley);
@@ -134,7 +135,7 @@ void runAllTests(int argc, char *argv[]){
 			s.push_back(CUTE(testAbeilleFschwefel));
 		}
 		//Test avec les essaims.
-		if(argv[1]=="-e")
+		if(strcmp(argv[1],"-e")==0)
 		{
 			s.push_back(CUTE(EssaimMajVoisin));
 			s.push_back(CUTE(EssaimInitVectors));
@@ -160,12 +161,12 @@ void runAllTests(int argc, char *argv[]){
 //	s.push_back(CUTE(testAbeillFackley));
 //	s.push_back(CUTE(testAbeilleGenererFleur));
 //	s.push_back(CUTE(testAbeilleFschwefel));
-	s.push_back(CUTE(testEssaimFschwefel));
+//	s.push_back(CUTE(testEssaimFschwefel));
 //	s.push_back(CUTE(testAbeillFbohachevsky));
 
-	cute::xml_file_opener xmlfile(argc,argv);
+	cute::xml_file_opener xmlfile(1,argv);
 	cute::xml_listener<cute::ide_listener<> >  lis(xmlfile.out);
-	cute::makeRunner(lis,argc,argv)(s, "AllTests");
+	cute::makeRunner(lis,1,argv)(s, "AllTests");
 }
 
 int main(int argc, char** argv){
