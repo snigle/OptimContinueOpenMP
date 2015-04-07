@@ -93,6 +93,7 @@ void testAbeilleFschwefel() {
 
 //////////////////////////////////Tests pour l'heuristique des abeilles//////////////////
 
+
 void EssaimMajVoisin() {
 	ASSERTM("tests pour la mise à jour des voisins", true);
 	Fackley f;
