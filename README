@@ -1,0 +1,9 @@
+1.Importer ce dossier dans Eclipse en tant que projet existant.
+2.Compiler
+3.Exécuter :
+ $./Debug/projetgsi //Tous les tests
+ $./Debug/projetgsi -a //Pour les abeilles
+ $./Debug/projetgsi -e //Pour Essaims
+ $mpirun -np 4 ./Debug/projetgsi
+
+Plus d'informations dans le rapport
