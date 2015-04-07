@@ -149,7 +149,8 @@ pFleurs(new std::vector<std::vector<double> >(_nbFleurs))
 , distributionParticule(_obj.getMax().size())
 , dimension(_obj.getMax().size())
 , distributionDimension(0, dimension - 1)
-, distributionVoisin(-1, 1) {
+, distributionVoisin(-1, 1)
+,posResultat(std::vector<double>(dimension,0)){
 
     for (unsigned i = 0; i < dimension; ++i) {
         distributionParticule[i] = std::uniform_real_distribution<double>(obj.getMin()[i], obj.getMax()[i]);

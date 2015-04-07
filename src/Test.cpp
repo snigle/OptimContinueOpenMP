@@ -215,7 +215,7 @@ int main(int argc, char** argv) {
 			Essaim<Fschwefel<3>> essaim(fs, 500, 10000);
 			essaim.solveMpi(mpi);
 			if (mpi.getRank() == 0) {
-				cout << "MPI :" << e << endl;
+				cout << "MPI :" << essaim << endl;
 			}
 
 		}
