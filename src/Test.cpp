@@ -197,6 +197,7 @@ void runAllTests(int argc, char *argv[]) {
 int main(int argc, char** argv) {
 	try {
 		MpiBind mpi(argc, argv);
+//		Dans le cas où on n'est pas en parallèle
 		if (mpi.getSize() == 1) {
 			runAllTests(argc, argv);
 		} else {
