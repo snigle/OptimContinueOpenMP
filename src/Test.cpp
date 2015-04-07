@@ -73,20 +73,20 @@ void EssaimMajVoisin()
 {
 	ASSERTM("tests pour la mise à jour des voisins",true);
     Fackley f;
-	Essaim<Fackley> e(f, 0.02, 0.02, 100,10);
+	Essaim<Fackley> e(f, 100,10);
 	e.testMajVoisins();
 }
 
 void EssaimInitVectors(){
 	ASSERTM("tests pour l'initialisation des vecteurs",true);
     Fbohachevsky f;
-	Essaim<Fbohachevsky> e(f, 0,02, 100, 10);
+	Essaim<Fbohachevsky> e(f, 100, 10);
 	e.testMajVoisins();
 }
 
 void testEssaimFcarre(){
 	F_carre f;
-	Essaim<F_carre> e(f, 0.02, 0.02, 1000,1000);
+	Essaim<F_carre> e(f, 1000,1000);
 	e.solve();
 	cout<<e<<endl;
 
@@ -95,7 +95,7 @@ void testEssaimFcarre(){
 
 void testEssaimAckley(){
 	Fackley f;
-	Essaim<Fackley> e(f, 0.02, 0.02, 1000,1000);
+	Essaim<Fackley> e(f, 1000,1000);
 	e.solve();
 	cout<<e<<endl;
 
@@ -105,7 +105,7 @@ void testEssaimAckley(){
 void testEssaimFschwefel()
 {
 	Fschwefel<3> f ;
-	Essaim<Fschwefel<3>> essaim(f, 0.02, 0.02, 500,10000);
+	Essaim<Fschwefel<3>> essaim(f, 500,10000);
 	essaim.solve();
 	std::cout<<essaim<<std::endl;
 }

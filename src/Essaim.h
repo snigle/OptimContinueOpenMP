@@ -24,8 +24,6 @@ class Essaim {
 private:
 
 	F obj;
-	double c1;
-	double c2;
 
 	unsigned nbParticules;
 	unsigned cArret;
@@ -54,7 +52,7 @@ private:
 
 public:
 
-    Essaim(F _obj, double _c1, double _c2, unsigned _nbParticules,
+    Essaim(F _obj, unsigned _nbParticules,
             unsigned _cArret);
     virtual ~Essaim();
 
@@ -62,7 +60,7 @@ public:
 	void solve();
 	void solveMpi(const MpiBind &mpi);
 	void initVectors();
-	bool majVoisins(unsigned i);
+	void majVoisins(unsigned i);
 	void afficherParticules();
 	std::vector<double> getResultat();
 
@@ -78,10 +76,10 @@ template<typename F>
 std::ostream& operator<<(std::ostream& out, const Essaim<F>& e);
 
 template<typename F>
-Essaim<F>::Essaim(F _obj, double _c1, double _c2, unsigned _nbParticules,
+Essaim<F>::Essaim(F _obj, unsigned _nbParticules,
 
 	unsigned _cArret) :
-		obj(_obj), c1(_c1), c2(_c2), nbParticules(_nbParticules),
+		obj(_obj), nbParticules(_nbParticules),
 		cArret(_cArret),
 		dimension(_obj.getMax().size()),
 		pparticules( new std::vector<std::vector<double>>(_nbParticules) ),
@@ -259,9 +257,8 @@ void Essaim<F>::solveMpi(const MpiBind &mpi) {
  * de la particule i
  * c'est à dire la mise à jour des attributs "cv" et "xv" */
 template<typename F>
-bool Essaim<F>::majVoisins(unsigned i) {
+void Essaim<F>::majVoisins(unsigned i) {
 
-	bool majEffectue { false };
 	std::vector<double> min = obj.getMin();
 	std::vector<double> max = obj.getMax();
 	std::vector<std::vector<double>>&particules = *pparticules;
@@ -284,14 +281,11 @@ bool Essaim<F>::majVoisins(unsigned i) {
 	if ( f_v1 < cv[i]) {
 		cv[i] = f_v1;
 		xv[i] = particules[v1];
-		majEffectue = true;
 	}
 	if ( f_v2 < cv[i]) {
 		cv[i] = f_v2;
 		xv[i] = particules[v2];
-		majEffectue = true;
 	}
-	return majEffectue;
 
 }
 
