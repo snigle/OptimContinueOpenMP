@@ -1,133 +1,8 @@
-EISTI\
-Rapport Projet\
-
-\
-<span> **Optimisation difficile pour des problème à variable
-continue**</span>\
-\
-
-<span>0.4</span>
-
-*Auteurs:*\
-Elie Poussou\
-Ludovic Lamarche\
-Nicolas Behra\
-
- 
-
-<span>0.4</span>
-
-*Professeur:*\
-Rémi Vernay
-
-\
-
-\
-
-![image](EISTI.jpg)\
-
-Introduction {#introduction .unnumbered}
+Introduction
 ============
 
-Dans le cadre de notre 3ème semestre de cycle ingénieur, il a été
-proposé aux élèves du parcours GSI un projet dont le but est de créer
-une librairie permettant d’effectuer une optimisation difficile pour des
-problèmes à variable continue.
+Ceci est une version .md du rapport. Ce fichier ne contient uniquement les informations relatives à l'API. Vous trouverez le détail de nos recherche dans le fichier pdf.
 
-Le but de cette librairie est de trouver la solution à des fonctions
-difficiles en un temps réduit.
-
-Pour mener à bien ce projet et résoudre ces problèmes, il nous a été
-proposé des heuristiques qui sont des méthodes pour trouver des
-solutions à des problèmes difficiles.
-
-Dans un premier temps, nous avons travaillé sur le fonctionnement de ces
-différentes heuristiques dans le cahier des charges.
-
-Dans ce rendu final, nous allons tout d’abord expliquer comment nous
-avons adapté les deux heuristiques choisies pour les faire fonctionner
-dans notre cas. En effet, notre librairie peut fonctionner avec
-l’heuristique des essaims particulaires ou avec celle des colonies
-d’abeilles artificielles.
-
-Ensuite, nous allons expliquer comment un développeur souhaitant
-utiliser notre librairie peut le faire en fonction de l’heuristique
-choisie.
-
-Enfin, une comparaison des performances en fonction de l’heuristique
-choisie sera présentée.
-
-Cette librairie pourra fonctionner sur un seul ordinateur en mode
-séquentiel ou sur plusieurs ordinateurs en mode parallèle.
-
-Modifications d’algorithme
-==========================
-
-Heuristique des abeilles
-------------------------
-
-Concernant l’heuristique des abeilles, nous avions présenté le
-déroulement de cette méthode mais nous n’avions pas précisément
-d’algorithme.\
-Voici ci dessous l’algorithme final utilisé pour implémenter cette
-heuristique.
-
-**si** fitness(**voisin**)\>fitness(**fleur**)**faire**\
-**fleur**\<-**voisin**\
- **finsi**
-
-Heuristique des essaims
------------------------
-
-Après implémentation de l’algorithme des essaims particulaires avec
-voisinage, fourni dans le premier rapport, nous avons dû adapter de
-manière empirique cet algorithme pour un fonctionnement et une
-efficacité optimale.
-
-Après étude et application de cet algorithme sur des fonctions objectifs
-concrètes telles que la fonction carré ou encore la fonction de
-Bohachevsky @fonctionsObjectifs. Les principales modifications se sont
-faites au niveau du calcul de la nouvelle vitesse.
-
-Précédemment on calculait la nouvelle vitesse ainsi:\
-
-$ v_{i} \leftarrow \kappa (v_{i} + \rho_{1} (x_{p_{i}} - x_{i}) + \rho_{2} (x_{v_{i}} - x_{i}) $\
-avec:
-
--   * $x_{i}$ * : la position de cette particule dans l’espace;
-
--   * $v_{i}$ * : sa vitesse;
-
--   * $x_{p_{i}}$ * : position par laquelle elle est déjà passée et dont
-    la solution est la meilleure;
-
--   * $x_{v_{i}}$ * : position du voisin pour laquelle la solution est
-    la meilleure;
-
--   $ \kappa = 1 - \frac{1}{\rho} + \frac{\sqrt{ |\rho^2 - 4\rho|}}{2} $
-
--   $\rho = \rho_{1} + \rho_{2} > 4$
-
--   $\rho_{1} = r_{1}*c_{1}$
-
--   $\rho_{2} = r_{2}*c_{2}$
-
-Où $c_{1}$, $c_{2}$ sont deux constantes positives déterminées de façon
-empirique et telles que $c_{1} + c_{2} \le 4 $ et $r_{1}, r_{2}$ suivent
-une loi uniforme sur [0..1].\
-Nous évoquions aussi le fait que la fonction de constriction devait être
-comprise entre $0.8$ et $1.2$ pour une convergence optimale d’où la
-nouvelle vitesse est calculée comme suit:\
-
-$ v_{i} \leftarrow c1 * v_{i} + R * (x_{p_{i}} - x_{i}) + (1-R) * (x_{v_{i}} - x_{i}) $
-
-avec $c1$: variable aléatoire entre $0.8$ et $1.2$;\
-$R$: variable aléatoire entre $0$ et $1$.\
-
-Ici, on doit comprendre que la vitesse peut accélérer, décélérer ou bien
-même stagner c’est pourquoi on multiplie la vitesse précédente par c1.
-Puis on simule la tendance d’une particule à suivre son instinct ou à
-suivre ses voisins par la variable $R$.
 
 API
 ===
@@ -284,19 +159,8 @@ beaucoup de minimums locaux, par exemple les deux fonctions suivantes.
 ![Fonction de Bohachevsky](boha.png)
 
 Nous avons noté des différences entre les performances des 2
-algorithmes, nous avons récapitulé ces différences dans le tableau
-suivant :\
+algorithmes, nous avons récapitulé ces différences dans le tableau que vous pouvez voir dans le fichier pdf.
 
-<span>|\*<span>4</span><span>c|</span></span> & Essaim & Abeille &
-resultat attendu F carré& F(-4.4\*$10^{-9}$) = 1.9\*$10^{-17}$ &
-F(-5.4\*$10^{-6}$) = 2.9\*$10^{-11}$ & F(0)=0 Ackley & F(-5.9
-\*$10^{-4}$,3.4\*$10^{-4}$) = 1.9\*$10^{-3}$ &
-F(-1.4\*$10^{-2}$,5.7\*$10^{-2}$) = 4.8\*$10^{-2}$ & F(0,0)=0
-Bohachevsky & F(-6.4\*$10^{-4}$,$10^{-3}$) = 4.6\*$10^{-5}$ &
-F(8.3\*$10^{-2}$,-9.6\*$10^{-2}$) = 0.3 resultat boha abeille & F(0,0)=0
-Schwefel & F(420.969,420.969,420.969) = 3.8\*$10^{-5}$ &
-F(421.673,420.704,421.028,) = 7.2\*$10^{-2}$&
-F(420.969,420.969,420.969)=0
 
 La différence de précision entre les deux algorithmes est flagrante,
 même pour une fonction assez simple comme la fonction carrée, on observe
@@ -315,7 +179,7 @@ Si l’on veut privilégier la précision, il faudra utiliser l’heuristique
 des essaims qui renverra des résultats plus proches de la solution
 exacte.
 
-Conclusion {#conclusion .unnumbered}
+Conclusion 
 ==========
 
 L’étude des comportements animaliers nous permet d’en déduire des
