@@ -1,15 +1,13 @@
 <testsuites>
-<<<<<<< HEAD
-	<testsuite name="AllTests" tests="2">
-		<testcase classname="AllTests" name="init"/>
-=======
-	<testsuite name="AllTests" tests="6">
-		<testcase classname="AllTests" name="init"/>
-		<testcase classname="AllTests" name="EssaimMajVoisin"/>
-		<testcase classname="AllTests" name="EssaimInitVectors"/>
-		<testcase classname="AllTests" name="testEssaimFcarre"/>
-		<testcase classname="AllTests" name="testEssaimAckley"/>
->>>>>>> cd675038dcd42622e25b6d9b97af79cff6eec0a3
-		<testcase classname="AllTests" name="testEssaimFschwefel"/>
+	<testsuite name="AllTests" tests="5">
+		<testcase classname="AllTests" name="testAbeilleGenererFleur"/>
+		<testcase classname="AllTests" name="testAbeillF_carre"/>
+		<testcase classname="AllTests" name="testAbeillFackley"/>
+		<testcase classname="AllTests" name="testAbeillFbohachevsky">
+			<failure message="../src/Test.cpp:73 testAbeillFbohachevsky: std::abs(resultats[i]) &lt; 0.1">
+testAbeillFbohachevsky: std::abs(resultats[i]) &lt; 0.1
+			</failure>
+		</testcase>
+		<testcase classname="AllTests" name="testAbeilleFschwefel"/>
 	</testsuite>
 </testsuites>
